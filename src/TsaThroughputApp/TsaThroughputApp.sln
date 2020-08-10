@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30323.103
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TsaThroughputApp", "TsaThroughputApp.csproj", "{D10B0E17-D14F-4C58-9BF5-9325BBE5CDD6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D10B0E17-D14F-4C58-9BF5-9325BBE5CDD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D10B0E17-D14F-4C58-9BF5-9325BBE5CDD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D10B0E17-D14F-4C58-9BF5-9325BBE5CDD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D10B0E17-D14F-4C58-9BF5-9325BBE5CDD6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {750A57B7-8561-418E-B414-1BBF0563F35E}
+	EndGlobalSection
+EndGlobal
