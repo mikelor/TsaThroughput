@@ -1,4 +1,31 @@
 {
-  ""
-
+  "Airports": [
+    {
+      "AirportCode": "SEA",
+      "AirportName": "Seattle-Tacoma International",
+      "City": "Seattle",
+      "State": "WA",
+      "Days": [
+        {
+          "Date": "07/07/2020",
+          "Checkpoints": [
+            {
+              "Checkpoint": "SCP 3",
+              "Throughput": [
+                {
+                  "Hour": "00:00",
+                  "Amount": 20
+                },
+                {
+                  "Hour": "01:00",
+                  "Amount": 52
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
+
