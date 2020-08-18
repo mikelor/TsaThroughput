@@ -12,7 +12,7 @@ namespace TsaThroughputApp.Models
     public class Checkpoint
     {
         public string CheckpointName { get; set; }
-        public List<Throughput> Throughput { get; set; }
+        public List<Throughput> Hours { get; set; }
     }
 
     public class Day
