@@ -23,7 +23,6 @@ namespace TsaThroughputApp
         {
 
 
-
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
 
@@ -118,14 +117,27 @@ namespace TsaThroughputApp
                                     curDay.Checkpoints.Add(checkpoint);
                                 }
                                 break;
+
+                            default:
+                            {
+                                // We're not supposed to get here, but sometimes the form recognizer will recognize the second line
+                                // in two line row as a new cell. For now we'll write out the offending cell and
+                                // increment the cellCursor which should get us on track
+                                // TODO: Append the text to the proper field. This only occurs in AirportName so far.
+                                Console.WriteLine($"{page.PageNumber}/{currentHourString}/{cellCursor}/{table.Cells[cellCursor].ColumnIndex}/{table.Cells[cellCursor].Text}");
+                                cellCursor++;
+                                break;
+                            }
                         }
                     }
                 }
-                Console.WriteLine($"{page.PageNumber}/{airport.AirportName}/{currentDateString}/{currentHourString}");
             }
 
             using FileStream fs = File.Create(@"c:\users\mloreng\source\repos\tsathroughput\data\tsathroughput.json");
             await JsonSerializer.SerializeAsync(fs, tsaThroughput);
+
+            Console.WriteLine($"Processed {formPages.Count} Pages.");
+            Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
         }
 
         private static Airport CreateAirport(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
