@@ -21,7 +21,8 @@ namespace TsaThroughputApp
     {
         static async Task Main(string[] args)
         {
-
+            string endpoint = "https://<>.cognitiveservices.azure.com/";
+            string apiKey = "<apikey>";
 
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
