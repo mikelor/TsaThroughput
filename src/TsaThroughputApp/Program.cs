@@ -21,13 +21,13 @@ namespace TsaThroughputApp
     {
         static async Task Main(string[] args)
         {
-            string endpoint = "https://<>.cognitiveservices.azure.com/";
-            string apiKey = "<apikey>";
+            string endpoint = "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/";
+            string apiKey = "e6ae82bdb8214d7690656ad0b9ce2e66";
 
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
 
-            string tsaThroughputFilePath = @"c:\users\mloreng\source\repos\tsathroughput\data\tsathroughput.pdf";
+            string tsaThroughputFilePath = @"..\..\data\tsathroughputsmall.pdf";
 
             TsaThroughput tsaThroughput = new TsaThroughput()
             {
