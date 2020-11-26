@@ -4,7 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {},
+	"settings": {
+		"debug.internalConsoleOptions": "neverOpen"
+	},
 	"launch": {
 		"version": "0.2.0",
 		"configurations": [
