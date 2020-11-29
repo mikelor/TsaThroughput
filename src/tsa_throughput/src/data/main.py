@@ -4,7 +4,7 @@ import pandas
 from pandas import json_normalize
 
 #load json file
-with open(r"c:\users\skaran\repos\tsathroughput\data\tsathroughput.json") as f:
+with open(r"..\..\data\tsathroughput.json") as f:
     data = json.load(f)
 
 #normalize and store in df
@@ -22,4 +22,4 @@ df = pandas.json_normalize(data,
 print(df)
 
 #export normalized JSON to CSV file
-csv_export = df.to_csv(r"c:\users\skaran\repos\tsathroughput\data\tsathroughputsmall.csv", index=False)
+csv_export = df.to_csv(r"..\..\data\tsathroughputsmall.csv", index=False)

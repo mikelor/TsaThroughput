@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "src\\TsaThroughputApp"
+		},
+		{
+			"path": "."
 		}
 	],
 	"settings": {
