@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "src\\TsaThroughputFunctions"
+		},
+		{
+			"path": "src\\tsa_throughput"
+		},
+		{
+			"path": "src\\TsaThroughputApp"
+		}
+	],
+	"settings": {
+		"debug.internalConsoleOptions": "neverOpen"
+	}
+}
