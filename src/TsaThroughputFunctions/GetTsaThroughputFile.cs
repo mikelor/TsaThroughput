@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
@@ -12,8 +13,8 @@ namespace TsaThroughput.Data.Raw
         [FunctionName("GetTsaThroughputFile")]
         public static void Run([TimerTrigger("0 * */30 * * *")]TimerInfo myTimer, ILogger log)
         {
-            string s = await GetLatestThroughputFile();
-            log.LogInforamtion($"File: {s}");
+            //string s = await GetLatestFiles();
+            //log.LogInforamtion($"File: {s}");
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
         }
         
@@ -33,17 +34,13 @@ namespace TsaThroughput.Data.Raw
             doc.LoadHtml(html); 
 
             var file = doc.DocumentNode
-                .SelectNodes("//a")
-                .FirstOrDefault(x => x.Attributes.Contains("class") && x.Attributes["class"].Value.Contains("foia-reading-link"));
+                .SelectSingleNode("//td/a[@class=foia-reading-link]");
 
             var url = file
-                .Attributes
-                .FirstOrDefault(x => x.Name == "href")
-                .Value;
+                .Attributes["href"].Value;
 
             var title = file
-                .SelectSingleNode("//td/a")
-                .InnerHtml;
+                .InnerText;
 
             return $"<p><a href=\"{website}{url}\">{title}</a></p>";
         }
