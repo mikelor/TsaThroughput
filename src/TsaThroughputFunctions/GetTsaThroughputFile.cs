@@ -1,8 +1,9 @@
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using HtmlAgilityPack;
 
 namespace TsaThroughput.Data.Raw
 {
@@ -11,18 +12,18 @@ namespace TsaThroughput.Data.Raw
         [FunctionName("GetTsaThroughputFile")]
         public static void Run([TimerTrigger("0 * */30 * * *")]TimerInfo myTimer, ILogger log)
         {
-            string s = await GetlatestFiles();
+            string s = await GetLatestThroughputFile();
             log.LogInforamtion($"File: {s}");
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
         }
         
         public static async Task<string> GetLatestFiles() {
-            var latestFile = await GetlatestFile();
+            var latestFile = await GetLatestThroughputFile();
 
             return latestFile;
         }
 
-        public static async Task<string> GetlatestFile() {
+        public static async Task<string> GetLatestThroughputFile() {
             string website = "https://www.tsa.gov/foia/readingroom";
 
             HttpClient client = new HttpClient();
