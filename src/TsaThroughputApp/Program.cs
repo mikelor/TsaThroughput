@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 
@@ -27,7 +28,7 @@ namespace TsaThroughputApp
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
 
-            string tsaThroughputFilePath = @"..\..\data\tsathroughputsmall.pdf";
+            string tsaThroughputFilePath = @"..\..\data\tsa-throughput-november-22-2020-to-november-28-2020.pdf";
 
             TsaThroughput tsaThroughput = new TsaThroughput()
             {
@@ -60,7 +61,16 @@ namespace TsaThroughputApp
                         {
                             // Date
                             case 0:
-                                currentDateString = table.Cells[cellCursor++].Text;
+                                // Sometimes the date spans more than one cell. Especially in the case of 2 digit months and days.
+                                // In this case it will return a string like "11/22/202 0"
+                                //   We remove spaces to handle this case
+                                // In other cases it may pick up the 0 on the second line as a new date
+                                //   To handle this, we only update the date if it parses to a valid date otherwise, we continue with the previous vlue
+                                DateTime currentDate;
+                                if(DateTime.TryParse(Regex.Replace(table.Cells[cellCursor++].Text, @"\s+", ""), out currentDate))
+                                {
+                                    currentDateString = currentDate.ToString("MM/dd/yyyy");
+                                }
                                 break;
 
                             // Hour
@@ -134,7 +144,7 @@ namespace TsaThroughputApp
                 }
             }
 
-            using FileStream fs = File.Create(@"c:\users\mloreng\source\repos\tsathroughput\data\tsathroughput.json");
+            using FileStream fs = File.Create(@"..\..\data\tsathroughput.json");
             await JsonSerializer.SerializeAsync(fs, tsaThroughput);
 
             Console.WriteLine($"Processed {formPages.Count} Pages.");
