@@ -28,7 +28,7 @@ namespace TsaThroughputApp
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
 
-            string tsaThroughputFilePath = @"..\..\data\tsa-throughput-november-22-2020-to-november-28-2020.pdf";
+            string tsaThroughputFilePath = @"..\..\data\tsa_throughput_august_11_2019_to_august_17_2019.pdf";
 
             TsaThroughput tsaThroughput = new TsaThroughput()
             {
@@ -112,20 +112,30 @@ namespace TsaThroughputApp
 
                             // Checkpoint
                             case 6:
-                                // Not needed as airport should always contain the last airport loaded
-                                // airport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
+                                // Instantiate a checkpoint object from the current cell
                                 checkpoint = CreateCheckpoint(table.Cells, currentDateString, currentHourString, ref cellCursor);
 
-                                // Get the checkpoint for the last day loaded
-                                Day curDay = airport.Days.Last<Day>();
-                                Checkpoint curCheckpoint = curDay.Checkpoints.Find(c => c.CheckpointName.Equals(checkpoint.CheckpointName));
-                                if (curCheckpoint != null)
+                                // Get the associated airport from our master list of airports.
+                                existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
+
+                                if(existingAirport != null)
                                 {
-                                    curCheckpoint.Hours.Add(checkpoint.Hours.First<Throughput>());
+                                    // Get the checkpoint for the last day loaded
+                                    Day curDay = existingAirport.Days.Last<Day>();
+                                    Checkpoint curCheckpoint = curDay.Checkpoints.Find(c => c.CheckpointName.Equals(checkpoint.CheckpointName));
+                                    if (curCheckpoint != null)
+                                    {
+                                        curCheckpoint.Hours.Add(checkpoint.Hours.First<Throughput>());
+                                    }
+                                    else
+                                    {
+                                        curDay.Checkpoints.Add(checkpoint);
+                                    }
                                 }
                                 else
                                 {
-                                    curDay.Checkpoints.Add(checkpoint);
+                                    // We shouldn't get here, but lets write it out just in case
+                                    Console.WriteLine($"Unable to retrieve airport for Checkpoint: {currentDateString}/{currentHourString}/{airport.AirportCode}/{checkpoint.CheckpointName}");
                                 }
                                 break;
 
@@ -144,7 +154,7 @@ namespace TsaThroughputApp
                 }
             }
 
-            using FileStream fs = File.Create(@"..\..\data\tsathroughput.json");
+            using FileStream fs = File.Create(@"..\..\data\tsathroughputaugust.json");
             await JsonSerializer.SerializeAsync(fs, tsaThroughput);
 
             Console.WriteLine($"Processed {formPages.Count} Pages.");
