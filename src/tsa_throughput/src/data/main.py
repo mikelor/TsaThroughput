@@ -1,10 +1,24 @@
 #packages
 import json
+import os
 import pandas
 from pandas import json_normalize
+import argparse
+
+print(f'Current Working Directory is: {os.getcwd()}\n')
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--inputFile", help = "The full path and filename for the input file")
+parser.add_argument("-o", "--outputFile", help = "The full path and filename for the output file")
+
+
+args = parser.parse_args();
+inputFile = args.inputFile
+outputFile = args.outputFile
 
 #load json file
-with open(r"../../../../data/tsa-throughput-november-22-2020-to-november-28-2020.json") as f:
+with open(inputFile) as f:
     data = json.load(f)
 
 #normalize and store in df
@@ -43,4 +57,4 @@ df_pivot = df_sea.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Air
 print(df_pivot)
 
 #export normalized JSON to CSV file
-csv_export = df_pivot.to_csv(r"../../../../data/tsathroughoutpivot.csv", index=False)
+csv_export = df_pivot.to_csv(outputFile, index=False)

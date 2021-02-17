@@ -1,6 +1,9 @@
 {
 	"folders": [
 		{
+			"path": "."
+		},
+		{
 			"path": "src\\TsaThroughputFunctions"
 		},
 		{
@@ -8,9 +11,6 @@
 		},
 		{
 			"path": "src\\TsaThroughputApp"
-		},
-		{
-			"path": "."
 		}
 	],
 	"settings": {

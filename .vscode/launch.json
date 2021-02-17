@@ -9,7 +9,12 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "-i", "./data/tsa-throughput-november-15-2020-to-november-21-2020.json",
+                "-o", "./data/tsa-throughput-november-15-2020-to-november-21-2020.csv"
+            ]
         },
         {
             "name": ".NET Core Launch (console)",

@@ -28,7 +28,7 @@ namespace TsaThroughputApp
             var credential = new AzureKeyCredential(apiKey);
             var client = new FormRecognizerClient(new Uri(endpoint), credential);
 
-            string tsaThroughputFilePath = @"..\..\data\tsa_throughput_august_11_2019_to_august_17_2019.pdf";
+            string tsaThroughputFilePath = @"../../data/tsa_throughput_august_11_2019_to_august_17_2019.pdf";
 
             TsaThroughput tsaThroughput = new TsaThroughput()
             {
@@ -154,7 +154,7 @@ namespace TsaThroughputApp
                 }
             }
 
-            using FileStream fs = File.Create(@"..\..\data\tsathroughputaugust.json");
+            using FileStream fs = File.Create(@"../../data/tsathroughputaugust.json");
             await JsonSerializer.SerializeAsync(fs, tsaThroughput);
 
             Console.WriteLine($"Processed {formPages.Count} Pages.");
