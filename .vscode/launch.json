@@ -17,19 +17,6 @@
             ]
         },
         {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/TsaThroughputApp/bin/Debug/netcoreapp3.1/TsaThroughputApp.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/TsaThroughputApp",
-            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
             "name": "Attach to .NET Functions",
             "type": "coreclr",
             "request": "attach",

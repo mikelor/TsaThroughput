@@ -25,7 +25,7 @@
       "type": "process",
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/src\\TsaThroughputFunctions"
+        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions"
       }
     },
     {
@@ -44,7 +44,7 @@
       },
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/src\\TsaThroughputFunctions"
+        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions"
       }
     },
     {
@@ -60,7 +60,7 @@
       "type": "process",
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/src\\TsaThroughputFunctions"
+        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions"
       }
     },
     {
@@ -77,14 +77,14 @@
       "dependsOn": "clean release",
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/src\\TsaThroughputFunctions"
+        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions"
       }
     },
     {
       "type": "func",
       "dependsOn": "build",
       "options": {
-        "cwd": "${workspaceFolder}/src\\TsaThroughputFunctions/bin/Debug/netcoreapp3.1"
+        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions/bin/Debug/netcoreapp3.1"
       },
       "command": "host start",
       "isBackground": true,

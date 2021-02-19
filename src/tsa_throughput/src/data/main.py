@@ -13,7 +13,7 @@ parser.add_argument("-i", "--inputFile", help = "The full path and filename for 
 parser.add_argument("-o", "--outputFile", help = "The full path and filename for the output file")
 
 
-args = parser.parse_args();
+args = parser.parse_args()
 inputFile = args.inputFile
 outputFile = args.outputFile
 
