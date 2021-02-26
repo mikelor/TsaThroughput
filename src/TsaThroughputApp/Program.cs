@@ -22,7 +22,7 @@ namespace TsaThroughputApp
 {
     class Program
     {
-        static async Task Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             string endpoint = "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/";
             string apiKey = "e6ae82bdb8214d7690656ad0b9ce2e66";
@@ -183,8 +183,7 @@ namespace TsaThroughputApp
                 Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
             });
             
-            int result = await Task.FromResult<int>(rootCommand.InvokeAsync(args).Result);
-            Console.WriteLine($"Result: {result}");
+            return await Task.FromResult<int>(rootCommand.InvokeAsync(args).Result);
         }
 
         private static Airport CreateAirport(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
