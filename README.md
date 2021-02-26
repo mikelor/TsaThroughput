@@ -17,3 +17,23 @@ At a high level, the project is organized into 3 main folders:
    * /TsaThroughputApp - A C# .NET Core console app that reads a TSA Throughtput PDF file and outputs a JSON representation. This will eventually be migrated to the "CvtThrougputToJson" functioin as depicted ain the diagram.
    * /TsaThroughputFunctions - A C# .Net Core function app that will contain implementations for the GetThroughputFile and CvtThrougputToJson functions as depicted in the diagram.
    * /tsa_throughput - A python application that converts the .json file to a .csv file. See the [README](src/tsa_throughput/README.md) for more detail.
+
+## Quickstart
+
+### Prerequisites
+
+### Running the TSAThroughputApp - Converting From PDF to JSON
+
+Navigate to the /src/TsaThroughputApp folder and issue the following command
+
+```
+ dotnet run -- ../../data/tsa-throughput-november-15-2020-to-november-21-2020.pdf ../../data/tsa-throughput-november-15-2020-to-november-21-2020.json
+```
+
+### Converting from JSON to CSV
+
+Navigate to the /src/tsa_throughput folder and issue the following command
+
+```
+python main.py -i ../../../../data/tsa-throughput-november-15-2020-to-november-21-2020.json -o ../../../../data/tsa-throughput-november-15-2020-to-november-21-2020.csv    
+```
