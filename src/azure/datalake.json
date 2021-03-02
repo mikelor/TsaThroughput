@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "pProjectName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 11,
+      "defaultValue": "datalake"
+    },
+    "pEnvironment": {
+      "type": "string",
+      "defaultValue": "dev"
+    },
+    "pSkuName": {
+      "type": "string",
+      "defaultValue": "Standard_LRS"
+    },
+    "pLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "uniqueId": "[uniqueString(resourceGroup().id)]",
+    "storageAccountName": "[format('{0}{1}{2}', toLower(parameters('pProjectName')), toLower(parameters('pEnvironment')), variables('uniqueId'))]",
+    "storageContainerName": "root"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('pLocation')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[parameters('pSkuName')]"
+      },
+      "properties": {
+        "isHnsEnabled": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), variables('storageContainerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    }
+  ]
+}

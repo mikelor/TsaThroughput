@@ -19,10 +19,14 @@ namespace TsaThroughput.Data.Raw
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
             var latestThroughputFileUrl = await GetLatestThroughputFileUrl(log);
-
             log.LogInformation($"Latest throughputfiles is {latestThroughputFileUrl}");
+
+            var pdf = await SaveThroughputPdfAsync(latestThroughputFileUrl);
         }
 
+        //
+        // GetLatestThroughputFileUrl(log)
+        // Returns the Url of the latest TsaThroughputFile
         private static async Task<string> GetLatestThroughputFileUrl(ILogger log) {
             string website = "https://www.tsa.gov";
             string subUrl = "/foia/readingroom/";
@@ -40,11 +44,15 @@ namespace TsaThroughput.Data.Raw
             return $"{website}{url}";
         }
 
+        //
+        // GetAsyncString(url)
+        // Returns a string representation of the webpage for the given URL
         private static async Task<string> GetAsyncString(string url)
         {
             // Need to impersonate a browser, otherwise HTTP 403 Forbidden is returned
             // See https://stackoverflow.com/questions/15026953/httpclient-request-like-browser/15031419#15031419
-            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url)); request.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url)); 
+            request.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml");
             request.Headers.TryAddWithoutValidation("Accept-Encoding", "gzip, deflate");
             request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
             request.Headers.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
@@ -58,5 +66,26 @@ namespace TsaThroughput.Data.Raw
 
             return await streamReader.ReadToEndAsync().ConfigureAwait(false);
         }
+
+        //
+        // SaveThroughtputPdfAsync(url)
+        // Saves the PDF at the given URL to blob storage
+        private static async Task<string> SaveThroughputPdfAsync(string url)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+            request.Headers.TryAddWithoutValidation("Accept", "application/pdf");
+            request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
+
+            using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            using var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var streamReader = new StreamReader(responseStream);
+
+            string pdf = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+            return pdf;
+        }
+
+
     }
 }
