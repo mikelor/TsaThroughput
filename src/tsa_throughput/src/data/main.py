@@ -33,7 +33,7 @@ df = pandas.json_normalize(data,
                            ['Airports', 'State'],
                        ],
                        )
-# Convert to datetime and get time
+#Convert to datetime and get time
 df['Hour'] = pandas.to_datetime(df['Hour'], errors='coerce')
 df['Hour'] = df['Hour'].dt.time
 
@@ -44,6 +44,10 @@ df['Airports.Days.Date'].dt.date
 #print(df)
 #print(df.shape)
 
+#New dataframe with limited columns
+df2 = df.reindex(columns= ['Airports.Days.Date','Hour','Airports.AirportCode','Airports.AirportName','Airports.City','Airports.State','Amount'])
+print(df2)
+
 #Filter only SEA
 isSea = df['Airports.AirportCode'] == 'SEA'
 #print(isSea.head())
@@ -52,9 +56,5 @@ isSea = df['Airports.AirportCode'] == 'SEA'
 df_sea = df[isSea]
 #print(df_sea.shape)
 
-#Create pivot table
-df_pivot = df_sea.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
-print(df_pivot)
-
 #export normalized JSON to CSV file
-csv_export = df_pivot.to_csv(outputFile, index=False)
+#csv_export = df_pivot.to_csv(outputFile, index=False)
