@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\skaran\\.virtualenvs\\tsathroughput\\Scripts\\python.exe",
     "azureFunctions.deploySubpath": "src\\TsaThroughputFunctions/bin/Release/netcoreapp3.1/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~3",
