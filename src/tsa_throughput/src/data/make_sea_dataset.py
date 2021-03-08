@@ -84,7 +84,8 @@ def processSingleFile(file):
     df['Airports.Days.Date'] = pandas.to_datetime(df['Airports.Days.Date'], errors='coerce')
     df['Airports.Days.Date'].dt.date
 
-    df = df.reindex(columns= ['Airports.Days.Date','Hour','Airports.AirportCode','Airports.AirportName','Airports.City','Airports.State','Amount'])
+    df = df[df['Airports.AirportCode'] == 'SEA']
+    df = df.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
 
     return df
 
