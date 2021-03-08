@@ -1,0 +1,1 @@
+for file in *.pdf; do sh ../scripts/CvtPdfToJson.sh "$file"; done
