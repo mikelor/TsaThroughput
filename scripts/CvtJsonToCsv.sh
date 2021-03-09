@@ -1,1 +1,0 @@
-python ../src/tsa_throughput/src/data/main.py -i ${1%.*}.json -o ./raw/tsa/throughput/${1%.*}.csv

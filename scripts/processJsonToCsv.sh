@@ -1,1 +1,0 @@
-for file in *.json; do sh ../scripts/CvtJsonToCsv.sh "$file"; done
