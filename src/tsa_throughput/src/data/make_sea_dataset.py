@@ -14,7 +14,8 @@ def processFile(inputFile, logger):
     logger.info(f'Processing file: {inputFile}')
     
     df = processSingleFile(inputFile)
-    print(df)
+
+    df = postProcessDataframe(df)
 
     outputFile = getOutputFile(inputFile, '.csv')
 
@@ -44,12 +45,12 @@ def processDir(inputDir, logger):
                 
             
             numFilesProcessed += 1
-
-    print(df)
+            
+    df = postProcessDataframe(df)
 
     # Output the file
     now = datetime.now()
-    outputFile = f'{inputDir}/raw/tsa/throughput/tsathroughput-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+    outputFile = f'{inputDir}/processed/tsa/throughput/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
     logger.info(f'[{numFilesProcessed}] Files Processed.')
     logger.info(f'Output file: {outputFile}')
@@ -86,6 +87,13 @@ def processSingleFile(file):
 
     df = df[df['Airports.AirportCode'] == 'SEA']
     df = df.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
+
+    return df
+
+def postProcessDataframe(df):
+    df.columns = [' '.join(col).strip() for col in df.columns.values]
+    df.sort_values(by=['Airports.Days.Date','Hour'], inplace=True)
+    print(df)
 
     return df
 
