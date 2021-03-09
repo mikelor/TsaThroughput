@@ -26,41 +26,53 @@ def processFile(inputFile, logger):
 
 def processDir(inputDir, matchString, logger):
     """
-    Processes a group of files in a directory
+    Processes a group of files in a directory with option matchstring to fileter
+    Note: There is also a hard-coded .json filter in the code.
     """
     logger.info(f'Processing all files in: {inputDir}')
 
     numFilesProcessed = 0
 
+    # Loop through the specified input directory looking for json files
     for entry in os.scandir(inputDir):
-        if (entry.path.endswith(".json") and 
+        if (entry.path.endswith('.json') and 
             entry.is_file()):
 
+            # If a matchString was specified, let's ensure the entry matches
             if(not matchString or matchString in entry.path):
 
                 logger.info(f'Processing file: {entry.path}')
 
                 if(numFilesProcessed == 0):
-                    logger.info('Processing First File')
+                    logger.info(f'Processing first file: {entry.path}')
                     df = processSingleFile(entry.path)
                 else:
-                    logger.info('Processing Other Files')
+                    logger.info(f'Processing additional files: {entry.path}')
                     df = df.append(processSingleFile(entry.path), ignore_index=True)
                 
-            
                 numFilesProcessed += 1
-            
-    df = postProcessDataframe(df)
+            else:
+                logger.info(f'Skipping file: {entry.path}')
 
-    # Output the file
-    now = datetime.now()
-    outputFile = f'{inputDir}/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        else:
+            logger.info(f'Skipping file: {entry.path}')
+   
+    logger.info(f'Files Processed: [{numFilesProcessed}].')
+        
+    # If we processed at least one file, process the dataframe and write out the file
+    if (numFilesProcessed > 0):
+        df = postProcessDataframe(df)
 
-    logger.info(f'[{numFilesProcessed}] Files Processed.')
-    logger.info(f'Output file: {outputFile}')
 
-    csv_export = df.to_csv(outputFile, index=False)
-    
+        # Generate outputFile path
+        now = datetime.now()
+        outputFile = f'{inputDir}/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+
+        logger.info(f'Output file: {outputFile}')
+        csv_export = df.to_csv(outputFile, index=False)
+    else:
+        logger.info(f'No output file created.')
+     
 
 def processSingleFile(file):
     
