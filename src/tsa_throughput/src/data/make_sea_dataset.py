@@ -7,6 +7,7 @@ import pandas
 from pathlib import Path
 from argparse import ArgumentParser
 
+
 def processFile(inputFile, logger):
     """
     Processes a single file
@@ -23,7 +24,7 @@ def processFile(inputFile, logger):
     csv_export = df.to_csv(outputFile, index=False)
 
 
-def processDir(inputDir, logger):
+def processDir(inputDir, matchString, logger):
     """
     Processes a group of files in a directory
     """
@@ -32,25 +33,28 @@ def processDir(inputDir, logger):
     numFilesProcessed = 0
 
     for entry in os.scandir(inputDir):
-        if (entry.path.endswith(".json")) and entry.is_file():
+        if (entry.path.endswith(".json") and 
+            entry.is_file()):
 
-            logger.info(f'Processing file: {entry.path}')
+            if(not matchString or matchString in entry.path):
 
-            if(numFilesProcessed == 0):
-                logger.info('Processing First File')
-                df = processSingleFile(entry.path)
-            else:
-                logger.info('Processing Other Files')
-                df = df.append(processSingleFile(entry.path), ignore_index=True)
+                logger.info(f'Processing file: {entry.path}')
+
+                if(numFilesProcessed == 0):
+                    logger.info('Processing First File')
+                    df = processSingleFile(entry.path)
+                else:
+                    logger.info('Processing Other Files')
+                    df = df.append(processSingleFile(entry.path), ignore_index=True)
                 
             
-            numFilesProcessed += 1
+                numFilesProcessed += 1
             
     df = postProcessDataframe(df)
 
     # Output the file
     now = datetime.now()
-    outputFile = f'{inputDir}/processed/tsa/throughput/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+    outputFile = f'{inputDir}/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
     logger.info(f'[{numFilesProcessed}] Files Processed.')
     logger.info(f'Output file: {outputFile}')
@@ -127,12 +131,13 @@ if __name__ == '__main__':
     subParserRequired = True
     subParser.dest = 'file or dir'
     
-    fileParser = subParser.add_parser('file', help='Process a single file')
-    fileParser.add_argument("-i", "--inputFile", help = "The full path and filename for the input file")
+    fileParser = subParser.add_parser('file',    help = 'Process a single file')
+    fileParser.add_argument('-i', '--inputFile', help = 'The full path and filename for the input file')
     fileParser.set_defaults(func=processFile)
 
-    dirParser = subParser.add_parser('dir', help='Process all files in a directory')
-    dirParser.add_argument("-d", "--inputDir", help = "The path to the directory to process")
+    dirParser = subParser.add_parser('dir',                   help = 'Process all files in a directory')
+    dirParser.add_argument('-d', '--inputDir',                help = 'The path to the directory to process')
+    dirParser.add_argument('-m', '--matchString', nargs='?',  help = 'The string to search for the filename')
     dirParser.set_defaults(func=processDir)
 
     args = parser.parse_args()
@@ -141,4 +146,4 @@ if __name__ == '__main__':
     if args.func.__name__ == 'processFile':
         processFile(args.inputFile, logger)
     else:
-        processDir(args.inputDir, logger)
+        processDir(args.inputDir, args.matchString, logger)
