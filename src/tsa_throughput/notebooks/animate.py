@@ -13,10 +13,14 @@ projectDir = Path('.').resolve()
 
 # Read in CSV file, Convert NaN values to 0's
 df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.SEA.csv', header='infer')
-df.fillna(0, inplace=True)
-df = df.rename(columns = {'Airports.Days.Date' : 'Date', 'SEA FIS Checkpoint' : 'SEA FIS'}, inplace=False)
-df.Date = pd.to_datetime(df['Date'])
+df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+df = df.rename(columns = 
+	{
+		'SEA FIS Checkpoint' : 'SEA FIS'
+	}, 
+	inplace=False)
 
+df.fillna(0, inplace=True)
 
 # Checkpoint names have changed over time, so we need to consolidate to new names
 # SEA Offsite Checkpoint -> SCP 1
@@ -70,18 +74,14 @@ def buildLineChart(plt, df, labels, colors):
 def animateChart(i = int):
 	p = plt.plot(dfg.loc[:i,'Date'], dfg.loc[:i, 'SEA SCP 3'])
 
-colors = ['red', 'green', 'blue']
-labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
-plt = setupChart(plt)
-animation = ani.FuncAnimation(plt.gcf(), animateChart, interval=50)
-plt.show()
-animation.save(r'/mnt/c/tmp/animation.gif', "ffmpeg")
+
 
 # plt = buildLineChart(plt, dfg, labels, colors)
 #colors = ['red', 'green', 'orange', 'blue', 'purple', 'black']
 #labels = ['SEA SCP 1', 'SEA SCP 2', 'SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5', 'SEA FIS']
 colors = ['red', 'green', 'blue']
 labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
+
 plt = setupChart(plt)
 plt.stackplot(dfg['Date'], dfg[labels[0]], dfg[labels[1]], dfg[labels[2]], labels=labels, colors=colors)
 plt.legend()
@@ -89,6 +89,7 @@ plt.show()
 plt.savefig(r'/mnt/c/tmp/figure1-AreaSCP345.jpg')
 
 plt.clf()
+
 colors = ['red', 'green', 'blue']
 labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
 plt = setupChart(plt)
@@ -98,6 +99,7 @@ plt.show()
 plt.savefig(r'/mnt/c/tmp/figure2-LineSCP345.jpg')
 
 plt.clf()
+
 colors = ['red', 'green', 'blue']
 labels = ['SEA SCP 1', 'SEA SCP 2', 'SEA FIS']
 plt = setupChart(plt)
@@ -106,3 +108,11 @@ plt.legend()
 plt.show()
 plt.savefig(r'/mnt/c/tmp/figure3-LineSCP12FIS.jpg')
 
+plt.clf()
+colors = ['red', 'green', 'blue']
+labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
+
+plt = setupChart(plt)
+animation = ani.FuncAnimation(plt.gcf(), animateChart, frames=len(df), interval=50)
+animation.save(r'/mnt/c/tmp/animation.mp4')
+plt.show()
