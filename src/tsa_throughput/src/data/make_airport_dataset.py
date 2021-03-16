@@ -8,23 +8,23 @@ from pathlib import Path
 from argparse import ArgumentParser
 
 
-def processFile(inputFile, logger):
+def processFile(inputFile, airportCode, outputDir, logger):
     """
     Processes a single file
     """
     logger.info(f'Processing file: {inputFile}')
     
-    df = processSingleFile(inputFile)
+    df = processSingleFile(inputFile, airportCode)
 
     df = postProcessDataframe(df)
 
-    outputFile = getOutputFile(inputFile, '.csv')
+    outputFile = f'{outputDir}/' + getOutputFile(inputFile, airportCode, '.csv')
 
     logger.info(f'Output file: {outputFile}')
     csv_export = df.to_csv(outputFile, index=False)
 
 
-def processDir(inputDir, matchString, logger):
+def processDir(inputDir, matchString, airportCode, outputDir, logger):
     """
     Processes a group of files in a directory with option matchstring to fileter
     Note: There is also a hard-coded .json filter in the code.
@@ -45,10 +45,10 @@ def processDir(inputDir, matchString, logger):
 
                 if(numFilesProcessed == 0):
                     logger.info(f'Processing first file: {entry.path}')
-                    df = processSingleFile(entry.path)
+                    df = processSingleFile(entry.path, airportCode)
                 else:
                     logger.info(f'Processing additional files: {entry.path}')
-                    df = df.append(processSingleFile(entry.path), ignore_index=True)
+                    df = df.append(processSingleFile(entry.path, airportCode), ignore_index=True)
                 
                 numFilesProcessed += 1
             else:
@@ -66,7 +66,7 @@ def processDir(inputDir, matchString, logger):
 
         # Generate outputFile path
         now = datetime.now()
-        outputFile = f'{inputDir}/sea-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        outputFile = f'{outputDir}/{airportCode}-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
 
         logger.info(f'Output file: {outputFile}')
         csv_export = df.to_csv(outputFile, index=False)
@@ -74,7 +74,7 @@ def processDir(inputDir, matchString, logger):
         logger.info(f'No output file created.')
      
 
-def processSingleFile(file):
+def processSingleFile(file, airportCode):
     
     #load json file
     with open(file) as f:
@@ -101,30 +101,41 @@ def processSingleFile(file):
     df['Airports.Days.Date'] = pandas.to_datetime(df['Airports.Days.Date'], errors='coerce')
     df['Airports.Days.Date'].dt.date
 
-    df = df[df['Airports.AirportCode'] == 'SEA']
+    df = df[df['Airports.AirportCode'] == airportCode]
     df = df.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
 
+    df = df.rename(columns =
+        {
+            'Airports.Days.Date' : 'Date', 
+            'Airports.AirportCode' : 'AirportCode', 
+            'Airports.Days.Checkpoints.CheckpointName' : 'CheckpointName'
+        }, 
+        inplace=False)
+  
     return df
 
 def postProcessDataframe(df):
     df.columns = [' '.join(col).strip() for col in df.columns.values]
-    df.sort_values(by=['Airports.Days.Date','Hour'], inplace=True)
+    df.sort_values(by=['Date','Hour'], inplace=True)
     print(df)
 
     return df
 
 
-def getOutputFile(inputFile, ext):
+def getOutputFile(inputFile, airportCode, ext):
     """
     Constructs an output file name fron the given input file
     """
-    splitText = os.path.splitext(inputFile)
-    outputFile = splitText[0] + ext
+    basename = os.path.basename(inputFile)
+    splitExt = os.path.splitext(basename)
+    outputFile = f'{airportCode}-' + splitExt[0] + ext
 
     return outputFile
 
 
 if __name__ == '__main__':
+    #  python make_sea_dataset.py dir -d ../../../../data/raw/tsa/throughput -a SEA
+
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
@@ -143,12 +154,16 @@ if __name__ == '__main__':
     subParserRequired = True
     subParser.dest = 'file or dir'
     
-    fileParser = subParser.add_parser('file',    help = 'Process a single file')
-    fileParser.add_argument('-i', '--inputFile', help = 'The full path and filename for the input file')
+    fileParser = subParser.add_parser('file',      help = 'Process a single file')
+    fileParser.add_argument('-i', '--inputFile',   help = 'The full path and filename for the input file')
+    fileParser.add_argument('-a', '--airportCode', help = 'The Airport Code to filter dataset by')
+    fileParser.add_argument('-o', '--outputDir',   help = 'The output directory to write the file')
     fileParser.set_defaults(func=processFile)
 
     dirParser = subParser.add_parser('dir',                   help = 'Process all files in a directory')
     dirParser.add_argument('-d', '--inputDir',                help = 'The path to the directory to process')
+    dirParser.add_argument('-a', '--airportCode',             help = 'The Airport Code to filter dataset by')
+    dirParser.add_argument('-o', '--outputDir',               help = 'The output directory to write the file')
     dirParser.add_argument('-m', '--matchString', nargs='?',  help = 'The string to search for the filename')
     dirParser.set_defaults(func=processDir)
 
@@ -156,6 +171,6 @@ if __name__ == '__main__':
     
     # Based on command line input, we'll either process a single file or a whole directory
     if args.func.__name__ == 'processFile':
-        processFile(args.inputFile, logger)
+        processFile(args.inputFile, args.airportCode, args.outputDir, logger)
     else:
-        processDir(args.inputDir, args.matchString, logger)
+        processDir(args.inputDir, args.matchString, args.airportCode, args.outputDir, logger)
