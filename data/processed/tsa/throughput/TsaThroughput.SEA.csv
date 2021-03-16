@@ -1,4 +1,4 @@
-Airports.Days.Date,Hour,SEA Central Checkpoint,SEA Charlie Checkpoint,SEA FIS Checkpoint,SEA North Checkpoint,SEA Offsite Checkpoint,SEA SCP 1,SEA SCP 2,SEA SCP 3,SEA SCP 4,SEA SCP 5,SEA South Checkpoint
+Date,Hour,SEA Central Checkpoint,SEA Charlie Checkpoint,SEA FIS Checkpoint,SEA North Checkpoint,SEA Offsite Checkpoint,SEA SCP 1,SEA SCP 2,SEA SCP 3,SEA SCP 4,SEA SCP 5,SEA South Checkpoint
 2018-12-30,00:00:00,50.0,,,,,,,,,,
 2018-12-30,01:00:00,12.0,,,,,,,,,,
 2018-12-30,02:00:00,110.0,,,,,,,,,,
