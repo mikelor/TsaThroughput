@@ -134,7 +134,8 @@ def getOutputFile(inputFile, airportCode, ext):
 
 
 if __name__ == '__main__':
-    #  python make_sea_dataset.py dir -d ../../../../data/raw/tsa/throughput -a SEA
+    #  python make_airport_dataset.py dir -d ../../../../data/raw/tsa/throughput -a SEA -o ../../../../data/processed/tsa/throughput 
+    #  python make_airport_dataset.py file -i ../../../../data/raw/tsa/throughput/tsa_throughput_march_3-9_2019.json -a SEA -o ../../../../data/processed/tsa/throughput
 
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
