@@ -114,5 +114,5 @@ labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
 
 plt = setupChart(plt)
 animation = ani.FuncAnimation(plt.gcf(), animateChart, frames=len(dfg), interval=50)
-animation.save(r'/mnt/c/tmp/animation.gif')
+animation.save(r'/mnt/c/tmp/animation.gif', writer='Pillow')
 plt.show()
