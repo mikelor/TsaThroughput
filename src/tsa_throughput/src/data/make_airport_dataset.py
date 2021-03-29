@@ -65,8 +65,7 @@ def processDir(inputDir, matchString, airportCode, outputDir, logger):
 
 
         # Generate outputFile path
-        now = datetime.now()
-        outputFile = f'{outputDir}/{airportCode}-{datetime.now().strftime("%Y%m%d%H%M%S")}.csv'
+        outputFile = f'{outputDir}/TsaThroughput.{airportCode}.csv'
 
         logger.info(f'Output file: {outputFile}')
         csv_export = df.to_csv(outputFile, index=False)
