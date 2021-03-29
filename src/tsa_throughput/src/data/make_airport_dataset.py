@@ -100,7 +100,10 @@ def processSingleFile(file, airportCode):
     df['Airports.Days.Date'] = pandas.to_datetime(df['Airports.Days.Date'], errors='coerce')
     df['Airports.Days.Date'].dt.date
 
-    df = df[df['Airports.AirportCode'] == airportCode]
+    # If an airportCode is specfied, let's filter on it
+    if(airportCode) :
+        df = df[df['Airports.AirportCode'] == airportCode]
+        
     df = df.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
 
     df = df.rename(columns =
@@ -162,7 +165,7 @@ if __name__ == '__main__':
 
     dirParser = subParser.add_parser('dir',                   help = 'Process all files in a directory')
     dirParser.add_argument('-d', '--inputDir',                help = 'The path to the directory to process')
-    dirParser.add_argument('-a', '--airportCode',             help = 'The Airport Code to filter dataset by')
+    dirParser.add_argument('-a', '--airportCode', nargs='?',  help = 'The Airport Code to filter dataset by')
     dirParser.add_argument('-o', '--outputDir',               help = 'The output directory to write the file')
     dirParser.add_argument('-m', '--matchString', nargs='?',  help = 'The string to search for the filename')
     dirParser.set_defaults(func=processDir)
