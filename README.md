@@ -24,18 +24,18 @@ At a high level, the project is organized into 3 main folders:
 
 ### Running the TSAThroughputApp - Converting From PDF to JSON
 
-Navigate to the /src/TsaThroughputApp folder and issue the following command
+Navigate to the /scripts folder and issue the following command
 
 ```
-dotnet run -- ../../data/tsa-throughput-february-28-2021-to-march-6-2021.pdf ../../data/raw/tsa/throughput/tsa-throughput-february-28-2021-to-march-6-2021.json
+./cvtPdfToJson.sh ../data/tsa-throughput-april-19-2020-to-april-25-2020.pdf
 ```
 
 ### Converting from JSON to CSV
 
-Navigate to the /src/tsa_throughput folder and issue the following command
+Navigate to the /scripts folder and issue the following command
 
 ```
-python make_airport_dataset.py dir -d ../../data/raw/tsa/throughput -a SEA -o ../../data/processed/tsa/throughput 
+./cvtJsonToCsv.sh
 ```
 
 The above command will process all of the files in the /data/raw/tsa/throughput folder and filter based on -a AIRPORTCODE. If you don't use the -a option, it will process all airports.

@@ -18,7 +18,7 @@ from pathlib import Path
 projectDir = Path('.').resolve().parents[3]
 
 # Read in CSV file, Convert NaN values to 0's
-airport = 'SEA'
+airport = 'LAS'
 df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
 df.fillna(0, inplace=True)
 df.Date = pd.to_datetime(df['Date'])
@@ -30,18 +30,21 @@ print(dfg.head())
 print(dfg.index)
 
 # Get the average total of passengers per month
-#y = dfg['Total'].resample('W-MON').mean()
-y = dfg['Total'].resample('MS').mean()
+y = dfg['Total'].resample('W-MON').mean()
+#y = dfg['Total'].resample('MS').mean()
+#y = dfg['Total']
 
 
 plt.style.use('fivethirtyeight')
 y.plot(figsize=(15, 6))
+plt.show()
 plt.savefig('/mnt/c/tmp/visualize01.png')
 
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
 decomposition = sm.tsa.seasonal_decompose(y, model='additive')
 fig = decomposition.plot()
+plt.show()
 plt.savefig('/mnt/c/tmp/visualize02.png')
 
 p = d = q = range(0, 2)
@@ -79,6 +82,7 @@ results = mod.fit()
 print(results.summary().tables[1])
 
 results.plot_diagnostics(figsize=(15, 8))
+plt.show()
 plt.savefig('/mnt/c/tmp/visualize03.png')
 
 
@@ -92,6 +96,7 @@ ax.fill_between(pred_ci.index,
 ax.set_xlabel('Date')
 ax.set_ylabel('Passengers')
 plt.legend()
+plt.show()
 plt.savefig('/mnt/c/tmp/visualize04.png')
 
 
@@ -103,7 +108,8 @@ ax.fill_between(pred_ci.index,
                 pred_ci.iloc[:, 0],
                 pred_ci.iloc[:, 1], color='k', alpha=.25)
 ax.set_xlabel('Date')
-ax.set_ylabel('Furniture Sales')
+ax.set_ylabel('Passengers')
 plt.legend()
+plt.show()
 plt.savefig('/mnt/c/tmp/visualize05.png')
 
