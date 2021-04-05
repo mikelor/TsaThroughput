@@ -11,10 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "args": [
-                "-i", "./data/raw/tsa/throughput/tsa-throughput-november-15-2020-to-november-21-2020.json",
-                "-o", "./data/raw/tsa/throughput/tsa-throughput-november-15-2020-to-november-21-2020.csv"
-            ]
+            "args": []
         },
         {
             "name": ".NET Core Attach",

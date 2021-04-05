@@ -8,44 +8,24 @@ import matplotlib.ticker as ticker
 
 from pathlib import Path
 
-# Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve()
+from dotenv import find_dotenv, load_dotenv
+import logging
+from pathlib import Path
+from argparse import ArgumentParser
 
-# Read in CSV file, Convert NaN values to 0's
-df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.SEA.csv', header='infer')
-df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-df = df.rename(columns = 
-	{
-		'SEA FIS Checkpoint' : 'SEA FIS'
-	}, 
-	inplace=False)
+def createAnimation(projectDir, airport, outputDir, logger):
+	# Read in CSV file, Convert NaN values to 0's
+	df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
 
-df.fillna(0, inplace=True)
+	df.fillna(0, inplace=True)
+	df.Date = pd.to_datetime(df['Date'])
 
-# Checkpoint names have changed over time, so we need to consolidate to new names
-# SEA Offsite Checkpoint -> SCP 1
-# SEA South Checkpoint   -> SCP 2		
-# SEA Central Checkpoint -> SCP 3    
-# SEA Charlie Checkpoint -> SCP 4   
-# SEA North Checkpoint   -> SCP 5
-# SEA FIS Checkpont      -> SEA FIS Checkpoint
-df['SEA SCP 1'] = df['SEA SCP 1'] + df['SEA Offsite Checkpoint']
-df['SEA SCP 2'] = df['SEA SCP 2'] + df['SEA South Checkpoint']
-df['SEA SCP 3'] = df['SEA SCP 3'] + df['SEA Central Checkpoint']
-df['SEA SCP 4'] = df['SEA SCP 4'] + df['SEA Charlie Checkpoint']
-df['SEA SCP 5'] = df['SEA SCP 5'] + df['SEA North Checkpoint']
+	# Sum up the amount numbers by day for our graph
+	df['Total'] = df.sum(axis = 1, skipna = True)
+	dfg = df.groupby('Date', as_index=False).agg({'Total': 'sum'})
 
-# Sum up the amount numbers by day for our graph
-dfg = df.groupby('Date', as_index=False).agg({'SEA SCP 1': 'sum', 'SEA SCP 2': 'sum', 'SEA SCP 3': 'sum', 'SEA SCP 4': 'sum', 'SEA SCP 5': 'sum', 'SEA FIS': 'sum'})
+	fig, ax = plt.subplots(figsize=(32, 10))
 
-
-fig, ax = plt.subplots(figsize=(32, 20))
-
-def setupChart(plt):
-	plt.xticks(rotation=45, ha="right", rotation_mode="anchor") #rotate the x-axis values
-	
-	ax = plt.gca()
-	
 	ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
 	ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 	ax.xaxis.set_minor_locator(mdates.DayLocator(interval=7))
@@ -53,66 +33,44 @@ def setupChart(plt):
 	ax.yaxis.set_major_locator(ticker.MultipleLocator(5000))
 	ax.yaxis.set_minor_locator(ticker.MultipleLocator(1000))
 
-	plt.title('SEA TSA Throughput by Date', fontsize=24)
+	ax.set_ylim(0,dfg['Total'].max())
+	ax.set_xlim(dfg['Date'].min(),dfg['Date'].max())
+
+	plt.title(f'{airport} Throughput by Date', fontsize=24)
 	plt.ylabel('Number of Passengers', fontsize=16)
 	plt.xlabel('Date', fontsize=16)
+	plt.xticks(rotation=45, ha="right", rotation_mode="anchor") #rotate the x-axis values
 
 	plt.grid(True)
 
-	return plt
+	animation = ani.FuncAnimation(plt.gcf(), animateChart, fargs=[dfg, logger], frames=len(dfg), interval=100)
+	animation.save(f'{outputDir}/animation.mp4', writer='ffmpeg')
+	logger.info(f'Finished Processing Chart Animation')
 
-def buildAreaChart(plt, df, labels, colors):
-	plt.stackplot(df['Date'], df[labels[0]], df[labels[1]], df[labels[2]], df[labels[3]], df[labels[4]], df[labels[5]], labels=labels, colors=colors)
-	return plt
+def animateChart(i, df, logger):
+	p = plt.plot(df.loc[:i,'Date'], df.loc[:i, 'Total'], color='b')
+	if(i % 10 == 0):
+		logger.info(f'{i} of {len(df)} data points processed')
 
-def buildLineChart(plt, df, labels, colors):
-	for i in range(0, len(labels)):
-		plt.plot(df['Date'], df[labels[i]], color=colors[i], label=labels[i])
+if __name__ == '__main__':
+	#  python animate.py -a LAS -o /mnt/c/tmp 
 
-	return plt
+	log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+	logging.basicConfig(level=logging.INFO, format=log_fmt)
 
-def animateChart(i = int):
-	p = plt.plot(dfg.loc[:i,'Date'], dfg.loc[:i, 'SEA SCP 3'])
+	# not used in this stub but often useful for finding various files
+	project_dir = Path('.').resolve()
 
+	# find .env automagically by walking up directories until it's found, then
+	# load up the .env entries as environment variables
+	load_dotenv(find_dotenv())
 
+	logger = logging.getLogger(__name__)
+	logger.info('Creating Chart Animation.')
 
-# plt = buildLineChart(plt, dfg, labels, colors)
-#colors = ['red', 'green', 'orange', 'blue', 'purple', 'black']
-#labels = ['SEA SCP 1', 'SEA SCP 2', 'SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5', 'SEA FIS']
-colors = ['red', 'green', 'blue']
-labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
+	parser = ArgumentParser()
+	parser.add_argument('-a', '--airportCode', nargs='?',  help = 'The Airport Code to filter dataset by')
+	parser.add_argument('-o', '--outputDir',               help = 'The output directory to write the file')
 
-plt = setupChart(plt)
-plt.stackplot(dfg['Date'], dfg[labels[0]], dfg[labels[1]], dfg[labels[2]], labels=labels, colors=colors)
-plt.legend()
-plt.show()
-plt.savefig(r'/mnt/c/tmp/figure1-AreaSCP345.jpg')
-
-plt.clf()
-
-colors = ['red', 'green', 'blue']
-labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
-plt = setupChart(plt)
-plt = buildLineChart(plt, dfg, labels, colors)
-plt.legend()
-plt.show()
-plt.savefig(r'/mnt/c/tmp/figure2-LineSCP345.jpg')
-
-plt.clf()
-
-colors = ['red', 'green', 'blue']
-labels = ['SEA SCP 1', 'SEA SCP 2', 'SEA FIS']
-plt = setupChart(plt)
-plt = buildLineChart(plt, dfg, labels, colors)
-plt.legend()
-plt.show()
-plt.savefig(r'/mnt/c/tmp/figure3-LineSCP12FIS.jpg')
-
-plt.clf()
-colors = ['red', 'green', 'blue']
-labels = ['SEA SCP 3', 'SEA SCP 4', 'SEA SCP 5']
-
-plt = setupChart(plt)
-animation = ani.FuncAnimation(plt.gcf(), animateChart, frames=len(dfg), interval=50)
-animation.save(r'/mnt/c/tmp/animation.gif', writer='Pillow')
-plt.show()
+	args = parser.parse_args()
+	createAnimation(project_dir, args.airportCode, args.outputDir, logger)

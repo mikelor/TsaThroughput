@@ -4,9 +4,9 @@ import pandas as pd
 import itertools
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as ani
-import matplotlib.dates as mdates
-import matplotlib.ticker as ticker
+from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+
+import seaborn as sns
 
 
 
@@ -15,7 +15,7 @@ import statsmodels.api as sm
 from pathlib import Path
 
 # Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve().parents[3]
+projectDir = Path('.').resolve()
 
 # Read in CSV file, Convert NaN values to 0's
 airport = 'LAS'
@@ -29,23 +29,40 @@ dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
 print(dfg.head())
 print(dfg.index)
 
+
+plt.rc('axes', titlesize=18)     # fontsize of the axes title
+plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
+plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
+plt.rc('legend', fontsize=13)    # legend fontsize
+plt.rc('font', size=13)          # controls default text sizes
+
+plt.figure(figsize=(8,4), tight_layout=True)
+fig, ax = plt.subplots()
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+
+ax.set_ylim(0,dfg['Total'].max())
+ax.set_xlim(dfg.index.min(),dfg.index.max())
+
+
 # Get the average total of passengers per month
-y = dfg['Total'].resample('W-MON').mean()
+#y = dfg['Total'].resample('W-MON').mean()
 #y = dfg['Total'].resample('MS').mean()
-#y = dfg['Total']
+y = dfg['Total']
 
-
-plt.style.use('fivethirtyeight')
-y.plot(figsize=(15, 6))
+plt.title(f'{airport} TSA Throughput')
+plt.xlabel('Date')
+plt.ylabel('Passengers')
+ax.plot(y)
 plt.show()
-plt.savefig('/mnt/c/tmp/visualize01.png')
+
 
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
 decomposition = sm.tsa.seasonal_decompose(y, model='additive')
 fig = decomposition.plot()
 plt.show()
-plt.savefig('/mnt/c/tmp/visualize02.png')
+
 
 p = d = q = range(0, 2)
 pdq = list(itertools.product(p, d, q))
