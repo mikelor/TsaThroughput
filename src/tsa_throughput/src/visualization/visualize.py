@@ -31,20 +31,18 @@ for airport in airports:
     # Sum up the amount numbers by day for our graph
     df['Total'] = df.sum(axis = 1, skipna = True)
     dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
-    print(dfg.head())
-    print(dfg.index)
 
     # Get the average total of passengers per month
     #y = dfg['Total'].resample('W-MON').mean()
     #y = dfg['Total'].resample('MS').mean()
     if(numAirports < 1):
         dfc = dfg
+        dfw = dfg['Total'].resample('W-MON').mean()
     else:
         dfc[airport] = dfg['Total']
+        dfw[airport] = dfg['Total'].resample('W-MON').mean()
 
     numAirports += 1
-
-    print(dfc.head())
 
 plt.rc('axes', titlesize=18)     # fontsize of the axes title
 plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
@@ -56,11 +54,7 @@ plt.rc('font', size=13)          # controls default text sizes
 
 fig, ax = plt.subplots()
 ax.xaxis.set_minor_locator(AutoMinorLocator())
-
-#ax.set_ylim(0,dfg['Total'].max())
-#ax.set_xlim(dfg.index.min(),dfg.index.max())
-
-
+ax.yaxis.set_minor_locator(AutoMinorLocator())
 
 
 plt.title(f'TSA Throughput By Airport')
@@ -69,18 +63,34 @@ plt.ylabel('Passengers')
 numAirports = 0
 for airport in airports:
     if(numAirports > 0):
+        plt.plot(dfw[airport], label=airports[numAirports])
+
+    numAirports += 1
+
+plt.legend(loc="upper right")
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+ax.yaxis.set_minor_locator(AutoMinorLocator())
+plt.grid(True)
+plt.figure(figsize=(16,10), tight_layout=True)
+plt.show()
+
+numAirports = 0
+for airport in airports:
+    if(numAirports > 0):
         plt.plot(dfc[airport], label=airports[numAirports])
 
     numAirports += 1
 
-plt.legend(loc="upper left")
-plt.figure(figsize=(16,9), tight_layout=True)
+plt.legend(loc="upper right")
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+ax.yaxis.set_minor_locator(AutoMinorLocator())
+plt.grid(True)
+plt.figure(figsize=(16,10), tight_layout=True)
 plt.show()
-
 
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
-decomposition = sm.tsa.seasonal_decompose(y, model='additive')
+decomposition = sm.tsa.seasonal_decompose(dfw['LAS'], model='additive')
 fig = decomposition.plot()
 plt.show()
 
