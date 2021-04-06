@@ -1,8 +1,9 @@
 # TsaThroughput
 
-Monitors the TSA Published Statistics on the [FOA Electronic Reading Room](https://www.tsa.gov/foia/readingroom) site. Downloads new PDF files and Saves as .json
-
+Monitors the TSA Published Statistics on the [FOA Electronic Reading Room](https://www.tsa.gov/foia/readingroom) site. Ths codebase supports the processing of PDF files to JSON and CSV files. With this information, you can see TSA Throughput history. The following animation was created using this data.
 See sample input and output files in the [/data](./data) folder.
+
+![Animation of TSA Throughput Data](doc/TsaThroughputAnimated.gif)
 
 Eventually this will be automated utilizing the below architecture
 ![System Component Diagram](doc/SystemComponentDiagram.png)
