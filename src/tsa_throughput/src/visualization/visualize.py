@@ -18,17 +18,33 @@ from pathlib import Path
 projectDir = Path('.').resolve()
 
 # Read in CSV file, Convert NaN values to 0's
-airport = 'LAS'
-df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
-df.fillna(0, inplace=True)
-df.Date = pd.to_datetime(df['Date'])
+airports = ['None', 'ANC', 'LAS', 'LAX', 'PDX', 'SEA', 'SFO' ]
 
-# Sum up the amount numbers by day for our graph
-df['Total'] = df.sum(axis = 1, skipna = True)
-dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
-print(dfg.head())
-print(dfg.index)
+numAirports = 0
+dfc = pd.DataFrame()
+for airport in airports:
+    
+    df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+    df.fillna(0, inplace=True)
+    df.Date = pd.to_datetime(df['Date'])
 
+    # Sum up the amount numbers by day for our graph
+    df['Total'] = df.sum(axis = 1, skipna = True)
+    dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
+    print(dfg.head())
+    print(dfg.index)
+
+    # Get the average total of passengers per month
+    #y = dfg['Total'].resample('W-MON').mean()
+    #y = dfg['Total'].resample('MS').mean()
+    if(numAirports < 1):
+        dfc = dfg
+    else:
+        dfc[airport] = dfg['Total']
+
+    numAirports += 1
+
+    print(dfc.head())
 
 plt.rc('axes', titlesize=18)     # fontsize of the axes title
 plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
@@ -37,23 +53,28 @@ plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
 plt.rc('legend', fontsize=13)    # legend fontsize
 plt.rc('font', size=13)          # controls default text sizes
 
-plt.figure(figsize=(8,4), tight_layout=True)
+
 fig, ax = plt.subplots()
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 
-ax.set_ylim(0,dfg['Total'].max())
-ax.set_xlim(dfg.index.min(),dfg.index.max())
+#ax.set_ylim(0,dfg['Total'].max())
+#ax.set_xlim(dfg.index.min(),dfg.index.max())
 
 
-# Get the average total of passengers per month
-#y = dfg['Total'].resample('W-MON').mean()
-#y = dfg['Total'].resample('MS').mean()
-y = dfg['Total']
 
-plt.title(f'{airport} TSA Throughput')
+
+plt.title(f'TSA Throughput By Airport')
 plt.xlabel('Date')
 plt.ylabel('Passengers')
-ax.plot(y)
+numAirports = 0
+for airport in airports:
+    if(numAirports > 0):
+        plt.plot(dfc[airport], label=airports[numAirports])
+
+    numAirports += 1
+
+plt.legend(loc="upper left")
+plt.figure(figsize=(16,9), tight_layout=True)
 plt.show()
 
 
