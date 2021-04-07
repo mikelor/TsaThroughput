@@ -37,12 +37,15 @@ for airport in airports:
     #y = dfg['Total'].resample('MS').mean()
     if(numAirports < 1):
         dfc = dfg
-        dfw = dfg['Total'].resample('W-MON').mean()
+        dfw = dfg['Total'].resample('MS').mean()
     else:
         dfc[airport] = dfg['Total']
-        dfw[airport] = dfg['Total'].resample('W-MON').mean()
+        dfw[airport] = dfg['Total'].resample('MS').mean()
 
     numAirports += 1
+
+from pylab import rcParams
+rcParams['figure.figsize'] = 18, 8
 
 plt.rc('axes', titlesize=18)     # fontsize of the axes title
 plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
@@ -71,7 +74,7 @@ plt.legend(loc="upper right")
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 ax.yaxis.set_minor_locator(AutoMinorLocator())
 plt.grid(True)
-plt.figure(figsize=(16,10), tight_layout=True)
+plt.tight_layout(True)
 plt.show()
 
 numAirports = 0
@@ -85,19 +88,23 @@ plt.legend(loc="upper right")
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 ax.yaxis.set_minor_locator(AutoMinorLocator())
 plt.grid(True)
-plt.figure(figsize=(16,10), tight_layout=True)
+plt.tight_layout(True)
 plt.show()
 
-from pylab import rcParams
-rcParams['figure.figsize'] = 18, 8
-decomposition = sm.tsa.seasonal_decompose(dfw['LAS'], model='additive')
+
+# Let's Start Understanding the Time Series
+
+decomposition = sm.tsa.seasonal_decompose(dfw['SEA'], model='additive')
 fig = decomposition.plot()
 plt.show()
 
 
 p = d = q = range(0, 2)
 pdq = list(itertools.product(p, d, q))
-seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
+
+# Tak says maybe change 12 to 0
+#seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
+seasonal_pdq = [(x[0], x[1], x[2], 0) for x in list(itertools.product(p, d, q))]
 
 print('Examples of parameter combinations for Seasonal ARIMA...')
 print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
@@ -120,7 +127,7 @@ for param in pdq:
             continue
 
 #https://stackoverflow.com/questions/64354366/length-of-endogenous-variable-must-be-larger-the-the-number-of-lags-used
-mod = sm.tsa.statespace.SARIMAX(y,
+mod = sm.tsa.statespace.SARIMAX(dfw['SEA'],
         order=(1, 1, 1),
         seasonal_order=(1, 1, 0, 12),
 #       enforce_stationarity=False,
@@ -131,12 +138,11 @@ print(results.summary().tables[1])
 
 results.plot_diagnostics(figsize=(15, 8))
 plt.show()
-plt.savefig('/mnt/c/tmp/visualize03.png')
 
 
 pred = results.get_prediction(start=pd.to_datetime('2020-01-01'), dynamic=False)
 pred_ci = pred.conf_int()
-ax = y.plot(label='observed')
+ax = dfw['SEA'].plot(label='observed')
 pred.predicted_mean.plot(ax=ax, label='One-step ahead Forecast', alpha=.7, figsize=(14, 7))
 ax.fill_between(pred_ci.index,
                 pred_ci.iloc[:, 0],
@@ -145,12 +151,12 @@ ax.set_xlabel('Date')
 ax.set_ylabel('Passengers')
 plt.legend()
 plt.show()
-plt.savefig('/mnt/c/tmp/visualize04.png')
+
 
 
 pred_uc = results.get_forecast(steps=100)
 pred_ci = pred_uc.conf_int()
-ax = y.plot(label='observed', figsize=(14, 7))
+ax = dfw['SEA'].plot(label='observed', figsize=(14, 7))
 pred_uc.predicted_mean.plot(ax=ax, label='Forecast')
 ax.fill_between(pred_ci.index,
                 pred_ci.iloc[:, 0],
@@ -159,5 +165,5 @@ ax.set_xlabel('Date')
 ax.set_ylabel('Passengers')
 plt.legend()
 plt.show()
-plt.savefig('/mnt/c/tmp/visualize05.png')
+
 
