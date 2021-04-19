@@ -18,7 +18,21 @@ from pathlib import Path
 projectDir = Path('.').resolve()
 
 # Read in CSV file, Convert NaN values to 0's
-airports = ['None', 'ANC', 'LAS', 'LAX', 'PDX', 'SEA', 'SFO' ]
+airports = ['None',
+            'ANC', 
+            'ATL', 
+            'DEN',
+            'DFW',
+            'FLL',
+            'LAS', 
+            'LAX', 
+            'MIA',
+            'MCO',
+            'PDX',
+            'PHX', 
+            'SEA', 
+            'SFO',
+            'TPA']
 
 numAirports = 0
 dfc = pd.DataFrame()
