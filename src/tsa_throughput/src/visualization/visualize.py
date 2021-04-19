@@ -105,6 +105,10 @@ plt.grid(True)
 plt.tight_layout(True)
 plt.show()
 
+outputFile = f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.Total.csv'
+
+dfc.to_csv(outputFile, index=True)
+
 
 # Let's Start Understanding the Time Series
 
