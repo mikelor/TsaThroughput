@@ -14,6 +14,7 @@
 		}
 	],
 	"settings": {
-		"debug.internalConsoleOptions": "neverOpen"
+		"debug.internalConsoleOptions": "neverOpen",
+		"python.pythonPath": "/home/mloreng/.virtualenvs/tsathroughput/bin/python"
 	}
 }
