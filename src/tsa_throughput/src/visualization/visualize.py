@@ -2,20 +2,18 @@ import numpy as np
 import pandas as pd
 
 import itertools
-
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 import seaborn as sns
-
-
-
 import statsmodels.api as sm
-
 from pathlib import Path
 
+# Based on the article - An End-to-End Project on Time Series Analysis and Forecasting with Python
+# https://towardsdatascience.com/an-end-to-end-project-on-time-series-analysis-and-forecasting-with-python-4835e6bf050b
+
 # Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve()
+projectDir = Path('.').resolve().parents[1]
 
 # Read in CSV file, Convert NaN values to 0's
 airports = ['None',

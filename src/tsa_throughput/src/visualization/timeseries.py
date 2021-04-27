@@ -8,23 +8,20 @@ from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
 import seaborn as sns
 
-
-
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import adfuller
 
 from pathlib import Path
 
-
+# Based on this article - ARIMA Model Python Example — Time Series Forecasting
+# https://towardsdatascience.com/machine-learning-part-19-time-series-and-autoregressive-integrated-moving-average-model-arima-c1005347b0d7
 
 
 def get_stationarity(timeseries):
     
     # rolling statistics
-    rolling_mean = timeseries.rolling(window=12).mean()
-    rolling_std = timeseries.rolling(window=12).std()
-    print(rolling_mean.head())
-    print(rolling_std.head())
+    rolling_mean = timeseries.rolling(window=14).mean()
+    rolling_std = timeseries.rolling(window=14).std()
     
     # rolling statistics plot
     original = plt.plot(timeseries, color='blue', label='Original')
@@ -45,7 +42,7 @@ def get_stationarity(timeseries):
 
 
 # Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve()
+projectDir = Path('.').resolve().parents[1]
 
 # Read in CSV file, Convert NaN values to 0's
 airports = [ 'SEA' ]
@@ -78,7 +75,7 @@ for airport in airports:
 
 
 df_log = np.log(dfg)
-plt.plot(df_log)
+#plt.plot(df_log)
 rolling_mean = df_log.rolling(window=12).mean()
 df_log_minus_mean = df_log - rolling_mean
 df_log_minus_mean.dropna(inplace=True)
