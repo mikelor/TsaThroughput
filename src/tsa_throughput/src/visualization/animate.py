@@ -14,8 +14,14 @@ from pathlib import Path
 from argparse import ArgumentParser
 
 def createAnimation(projectDir, airport, outputDir, logger):
+	airportString = 'All'
+	if(airport is not None):
+		airportString = airport
+
+	logger.info(f'Creating Chart Animation For {airportString}.')
+
 	# Read in CSV file, Convert NaN values to 0's
-	df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+	df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airportString}.csv', header='infer')
 
 	df.fillna(0, inplace=True)
 	df.Date = pd.to_datetime(df['Date'])
@@ -36,10 +42,7 @@ def createAnimation(projectDir, airport, outputDir, logger):
 	ax.set_ylim(0,dfg['Total'].max())
 	ax.set_xlim(dfg['Date'].min(),dfg['Date'].max())
 
-	if (not airport):
-		plt.title(f'TSA Throughput by Date', fontsize=24)
-	else:
-		plt.title(f'{airport} TSA Throughput by Date', fontsize=24)
+	plt.title(f'{airportString} TSA Throughput by Date', fontsize=24)
 
 	plt.ylabel('Number of Passengers', fontsize=16)
 	plt.xlabel('Date', fontsize=16)
@@ -49,8 +52,8 @@ def createAnimation(projectDir, airport, outputDir, logger):
 	plt.tight_layout(True)
 
 	animation = ani.FuncAnimation(plt.gcf(), animateChart, fargs=[dfg, logger], frames=len(dfg), interval=100)
-	animation.save(f'{outputDir}/TsaThroughput.{airport}.mp4', writer='ffmpeg')
-	logger.info(f'Finished Processing Chart Animation for {airport}')
+	animation.save(f'{outputDir}/TsaThroughput.{airportString}.mp4', writer='ffmpeg')
+	logger.info(f'Finished Processing Chart Animation for {airportString}')
 
 def animateChart(i, df, logger):
 	p = plt.plot(df.loc[:i,'Date'], df.loc[:i, 'Total'], color='b')
@@ -64,7 +67,7 @@ if __name__ == '__main__':
 	logging.basicConfig(level=logging.INFO, format=log_fmt)
 
 	# not used in this stub but often useful for finding various files
-	project_dir = Path('.').resolve()
+	project_dir = Path('.').resolve().parents[0]
 
 	# find .env automagically by walking up directories until it's found, then
 	# load up the .env entries as environment variables
@@ -78,5 +81,4 @@ if __name__ == '__main__':
 	parser.add_argument('-o', '--outputDir',               help = 'The output directory to write the file')
 
 	args = parser.parse_args()
-	logger.info(f'Creating Chart Animation For {args.airportCode}.')
 	createAnimation(project_dir, args.airportCode, args.outputDir, logger)
