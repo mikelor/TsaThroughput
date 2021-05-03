@@ -12,11 +12,12 @@ def processFile(inputFile, airportCode, outputDir, logger):
     """
     Processes a single file
     """
-    logger.info(f'Processing file: {inputFile}')
+    logger.info(f'Processing csv file: {inputFile}')
     
     df = processSingleFile(inputFile, airportCode)
 
-    df = postProcessDataframe(df)
+    df = postProcessDataframe(df, outputDir, logger)
+    df = pivotDataframe(df)
 
     outputFile = f'{outputDir}/' + getOutputFile(inputFile, airportCode, '.csv')
 
@@ -61,17 +62,41 @@ def processDir(inputDir, matchString, airportCode, outputDir, logger):
         
     # If we processed at least one file, process the dataframe and write out the file
     if (numFilesProcessed > 0):
-        df = postProcessDataframe(df)
-
+        df = postProcessDataframe(df, outputDir, logger)
+        df = pivotDataframe(df)
+        
+        # Make a more meaningful filename for All airports.
+        if(airportCode is None):
+            airportCodeString = 'All'
+        else:
+            airportCodeString = airportCode
 
         # Generate outputFile path
-        outputFile = f'{outputDir}/TsaThroughput.{airportCode}.csv'
+        outputFile = f'{outputDir}/TsaThroughput.{airportCodeString}.csv'
 
         logger.info(f'Output file: {outputFile}')
         csv_export = df.to_csv(outputFile, index=False)
     else:
         logger.info(f'No output file created.')
      
+
+def processCsv(inputFile, airportCode, outputDir, logger):
+    """
+    Processes a csv file
+    """
+    logger.info(f'Processing file: {inputFile}')
+
+    df = pandas.read_csv(f'{inputFile}', header='infer')
+
+    # If an airportCode is specfied, let's filter on it
+    if(airportCode) :
+        df = df[df['AirportCode'] == airportCode]
+
+    df = pivotDataframe(df)
+
+    outputFile = f'{outputDir}/TsaThroughput.{airportCode}.csv'
+    logger.info(f'Output file: {outputFile}')
+    csv_export = df.to_csv(outputFile, index=False)
 
 def processSingleFile(file, airportCode):
     
@@ -99,28 +124,38 @@ def processSingleFile(file, airportCode):
     #Convert to datetime and get date
     df['Airports.Days.Date'] = pandas.to_datetime(df['Airports.Days.Date'], errors='coerce')
     df['Airports.Days.Date'].dt.date
+        
+    df = df.rename(columns =
+    {
+        'Airports.Days.Date' : 'Date', 
+        'Airports.AirportCode' : 'AirportCode', 
+        'Airports.AirportName' : 'AirportName',
+        'Airports.City' : 'City',
+        'Airports.Days.Checkpoints.CheckpointName' : 'CheckpointName',
+        'Airports.State' : 'State'
+    }, 
+    inplace=False)
 
     # If an airportCode is specfied, let's filter on it
     if(airportCode) :
-        df = df[df['Airports.AirportCode'] == airportCode]
-        
-    df = df.pivot_table(index=['Airports.Days.Date','Hour'], columns=['Airports.AirportCode','Airports.Days.Checkpoints.CheckpointName'], values='Amount').reset_index()
+        df = df[df['AirportCode'] == airportCode]
 
-    df = df.rename(columns =
-        {
-            'Airports.Days.Date' : 'Date', 
-            'Airports.AirportCode' : 'AirportCode', 
-            'Airports.Days.Checkpoints.CheckpointName' : 'CheckpointName'
-        }, 
-        inplace=False)
-  
     return df
 
-def postProcessDataframe(df):
-    df.columns = [' '.join(col).strip() for col in df.columns.values]
-    df.sort_values(by=['Date','Hour'], inplace=True)
-    print(df)
+def postProcessDataframe(df, outputDir, logger):
+    df = df[['Date', 'Hour', 'AirportName', 'AirportCode', 'City', 'State', 'CheckpointName', 'Amount']]
+    df.sort_values(by=['Date','Hour', 'AirportCode', 'CheckpointName'], inplace=True)
+       
+    # Generate outputFile path
+    outputFile = f'{outputDir}/TsaThroughput.Cache.csv'
+    logger.info(f'Saving Cache File for Later Processing: {outputFile}')
+    csv_export = df.to_csv(outputFile, index=False)
 
+    return df
+    
+def pivotDataframe(df):
+    df = df.pivot_table(index=['Date','Hour'], columns=['AirportCode','CheckpointName'], values='Amount').reset_index()
+    df.columns = [' '.join(col).strip() for col in df.columns.values]
     return df
 
 
@@ -155,10 +190,10 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     subParser = parser.add_subparsers()
     subParserRequired = True
-    subParser.dest = 'file or dir'
+    subParser.dest = 'file or dir or csv'
     
     fileParser = subParser.add_parser('file',      help = 'Process a single file')
-    fileParser.add_argument('-i', '--inputFile',   help = 'The full path and filename for the input file')
+    fileParser.add_argument('-f', '--inputFile',   help = 'The full path and filename for the input file')
     fileParser.add_argument('-a', '--airportCode', help = 'The Airport Code to filter dataset by')
     fileParser.add_argument('-o', '--outputDir',   help = 'The output directory to write the file')
     fileParser.set_defaults(func=processFile)
@@ -170,10 +205,19 @@ if __name__ == '__main__':
     dirParser.add_argument('-m', '--matchString', nargs='?',  help = 'The string to search for the filename')
     dirParser.set_defaults(func=processDir)
 
+    csvParser = subParser.add_parser('csv',                   help = 'Process an existing CSV file. Usually TsaThroughput.All.csv')
+    csvParser.add_argument('-f', '--inputFile',                help = 'The path to the directory to process')
+    csvParser.add_argument('-a', '--airportCode', nargs='?',  help = 'The Airport Code to filter dataset by')
+    csvParser.add_argument('-o', '--outputDir',               help = 'The output directory to write the file')
+    csvParser.set_defaults(func=processCsv)
+
     args = parser.parse_args()
     
-    # Based on command line input, we'll either process a single file or a whole directory
+    # Based on command line input, we'll either process a single file, whole directory or a csv file
     if args.func.__name__ == 'processFile':
         processFile(args.inputFile, args.airportCode, args.outputDir, logger)
-    else:
+    elif(args.func.__name__ == 'processDir'):
         processDir(args.inputDir, args.matchString, args.airportCode, args.outputDir, logger)
+    else:
+        processCsv(args.inputFile, args.airportCode, args.outputDir, logger)
+
