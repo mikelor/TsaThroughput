@@ -51,7 +51,7 @@ numAirports = 0
 dfc = pd.DataFrame()
 for airport in airports:
     
-    df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+    df = pd.read_csv(f'{projectDir}/repos/TsaThroughput/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
     df.fillna(0, inplace=True)
     df.Date = pd.to_datetime(df['Date'])
 
@@ -119,5 +119,31 @@ results = mod.fit()
 print(results.summary().tables[1])
 
 #Diagnostics to check for anything unusual
-results.plot_diagnostics(figsize=(16, 8))
+results.plot_diagnostics(figsize=(10, 5))
+plt.show()
+
+#Validate forecast by checking predicted throughput to actual throughput
+pred = results.get_prediction(start=pd.to_datetime('2020-01-01'), dynamic=False)
+pred_ci = pred.conf_int()
+ax = dfg['2019':].plot(label='observed')
+pred.predicted_mean.plot(ax=ax, label='One-step ahead Forecast', alpha=.7, figsize=(10, 5))
+ax.fill_between(pred_ci.index,
+                pred_ci.iloc[:, 0],
+                pred_ci.iloc[:, 1], color='k', alpha=.2)
+ax.set_xlabel('Date')
+ax.set_ylabel('Throughput')
+plt.legend()
+plt.show()
+
+#Vizualizing forecast
+pred_uc = results.get_forecast(steps=100)
+pred_ci = pred_uc.conf_int()
+ax = dfg.plot(label='observed', figsize=(10, 5))
+pred_uc.predicted_mean.plot(ax=ax, label='Forecast')
+ax.fill_between(pred_ci.index,
+                pred_ci.iloc[:, 0],
+                pred_ci.iloc[:, 1], color='k', alpha=.25)
+ax.set_xlabel('Date')
+ax.set_ylabel('Throughput')
+plt.legend()
 plt.show()
