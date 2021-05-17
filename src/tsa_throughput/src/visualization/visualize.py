@@ -13,10 +13,12 @@ from pathlib import Path
 # https://towardsdatascience.com/an-end-to-end-project-on-time-series-analysis-and-forecasting-with-python-4835e6bf050b
 
 # Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve().parents[1]
+# Make sure you run this file from the project root folder
+projectDir = Path('.').resolve()
+print(projectDir)
 
 # Read in CSV file, Convert NaN values to 0's
-airports = ['None',
+airports = ['Total',
             'ANC', 
             'ATL', 
             'DEN',
