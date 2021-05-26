@@ -10,6 +10,8 @@ python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/pro
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a MCO -o ../data/processed/tsa/throughput
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a PDX -o ../data/processed/tsa/throughput 
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a PHX -o ../data/processed/tsa/throughput 
-python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a SEA -o ../data/processed/tsa/throughput 
+python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a SEA -o ../data/processed/tsa/throughput
+python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a SJC -o ../data/processed/tsa/throughput 
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a SFO -o ../data/processed/tsa/throughput
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a TPA -o ../data/processed/tsa/throughput
+ 

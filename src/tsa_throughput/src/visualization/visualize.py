@@ -30,7 +30,8 @@ airports = ['Total',
             'MCO',
             'PDX',
             'PHX', 
-            'SEA', 
+            'SEA',
+            'SJC',
             'SFO',
             'TPA']
 
