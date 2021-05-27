@@ -56,6 +56,9 @@ for airport in airports:
 
     numAirports += 1
 
+outputFile = f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.Total.csv'
+dfc.to_csv(outputFile, index=True)
+
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
 
