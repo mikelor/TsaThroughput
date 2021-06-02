@@ -4,6 +4,7 @@ import pandas as pd
 import itertools
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
+from matplotlib.dates import (MonthLocator, YearLocator)
 
 import seaborn as sns
 import statsmodels.api as sm
@@ -82,8 +83,9 @@ def plotFigure(plt, plotTitle, df, labels, index):
     plt.plot(df, label=labels[index])
 
     plt.legend(loc="upper right")
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    plt.xticks(rotation=45, ha="right")
     ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.xaxis.set_major_locator(MonthLocator())
     plt.grid(True)
     plt.savefig(f'{projectDir}/src/tsa_throughput/src/visualization/figures/Figure.{plotTitle}.{airports[numAirports]}.png')
     plt.close(fig)
