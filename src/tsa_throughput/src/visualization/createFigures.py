@@ -19,7 +19,7 @@ projectDir = Path('.').resolve()
 print(projectDir)
 
 # Read in CSV file, Convert NaN values to 0's
-airports = ['Total',
+airports = ['All',
             'ANC', 
             'ATL', 
             'DEN',
@@ -34,7 +34,8 @@ airports = ['Total',
             'SEA',
             'SJC',
             'SFO',
-            'TPA']
+            'TPA',
+            'Total']
 
 numAirports = 0
 dfc = pd.DataFrame()
