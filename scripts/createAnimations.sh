@@ -11,5 +11,6 @@ python ../src/tsa_throughput/src/visualization/animate.py -a MCO -o /mnt/c/tmp
 python ../src/tsa_throughput/src/visualization/animate.py -a PDX -o /mnt/c/tmp
 python ../src/tsa_throughput/src/visualization/animate.py -a PHX -o /mnt/c/tmp
 python ../src/tsa_throughput/src/visualization/animate.py -a SEA -o /mnt/c/tmp
+python ../src/tsa_throughput/src/visualization/animate.py -a SJC -o /mnt/c/tmp
 python ../src/tsa_throughput/src/visualization/animate.py -a SFO -o /mnt/c/tmp
 python ../src/tsa_throughput/src/visualization/animate.py -a TPA -o /mnt/c/tmp

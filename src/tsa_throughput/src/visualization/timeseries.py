@@ -30,7 +30,6 @@ def get_stationarity(timeseries):
     plt.legend(loc='best')
     plt.title('Rolling Mean & Standard Deviation')
     plt.show()
-    plt.savefig('test.png')
     
     # Dickey–Fuller test:
     result = adfuller(timeseries)
@@ -42,7 +41,8 @@ def get_stationarity(timeseries):
 
 
 # Load the file into a dataframe and checkout the structure
-projectDir = Path('.').resolve().parents[1]
+# Make sure you run this file from the project root folder
+projectDir = Path('.').resolve()
 
 # Read in CSV file, Convert NaN values to 0's
 airports = [ 'SEA' ]
@@ -51,7 +51,7 @@ numAirports = 0
 dfc = pd.DataFrame()
 for airport in airports:
     
-    df = pd.read_csv(f'{projectDir}/repos/TsaThroughput/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+    df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
     df.fillna(0, inplace=True)
     df.Date = pd.to_datetime(df['Date'])
 
