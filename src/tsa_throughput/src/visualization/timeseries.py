@@ -91,7 +91,7 @@ print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
 
-#Grid search to find the optimal set of parameters for model
+#Grid search to find the optimal set of parameters for model. Runs every set of parameters. The lowest AIC indictates the optimal set.
 
 # for param in pdq:
 #     for param_seasonal in seasonal_pdq:
@@ -116,16 +116,16 @@ mod = sm.tsa.statespace.SARIMAX(dfg,
 
 results = mod.fit()
 
-print(results.summary().tables[1])
+#print(results.summary().tables[1])
 
-#Diagnostics to check for anything unusual
+#Diagnostics to check for anything unusual.
 results.plot_diagnostics(figsize=(10, 5))
-plt.show()
+#plt.show()
 
-#Validate forecast by checking predicted throughput to actual throughput
+#Validate forecast by checking predicted throughput to actual throughput. Plot starts in 2018, forecast starts at 2020.
 pred = results.get_prediction(start=pd.to_datetime('2020-01-01'), dynamic=False)
 pred_ci = pred.conf_int()
-ax = dfg['2019':].plot(label='observed')
+ax = dfg['2018':].plot(label='observed')
 pred.predicted_mean.plot(ax=ax, label='One-step ahead Forecast', alpha=.7, figsize=(10, 5))
 ax.fill_between(pred_ci.index,
                 pred_ci.iloc[:, 0],
@@ -133,7 +133,7 @@ ax.fill_between(pred_ci.index,
 ax.set_xlabel('Date')
 ax.set_ylabel('Throughput')
 plt.legend()
-plt.show()
+#plt.show()
 
 #Vizualizing forecast
 pred_uc = results.get_forecast(steps=100)
@@ -147,3 +147,6 @@ ax.set_xlabel('Date')
 ax.set_ylabel('Throughput')
 plt.legend()
 plt.show()
+
+#Prints forecasted values
+print(pred_uc.predicted_mean)
