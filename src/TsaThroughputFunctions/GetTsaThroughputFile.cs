@@ -38,7 +38,7 @@ namespace TsaThroughput.Data.Raw
 
             // Extract the link so we can fetch it
             var url = doc.DocumentNode
-                .SelectSingleNode("//a[@class='foia-reading-link']")
+                .SelectSingleNode("//a[@class='foia-reading-link'][contains(text(),'TSA Throughput')]")
                 .Attributes["href"].Value;
 
             return $"{website}{url}";
