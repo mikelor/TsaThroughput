@@ -3,5 +3,6 @@
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~3",
     "debug.internalConsoleOptions": "neverOpen",
-    "azureFunctions.preDeployTask": "publish"
+    "azureFunctions.preDeployTask": "publish",
+    "python.pythonPath": "C:\\Users\\skaran\\.virtualenvs\\tsathroughput\\Scripts\\python.exe"
 }
