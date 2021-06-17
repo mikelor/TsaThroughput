@@ -40,3 +40,18 @@ Navigate to the /scripts folder and issue the following command
 ```
 
 The above command will process all of the files in the /data/raw/tsa/throughput folder and filter based on -a AIRPORTCODE. If you don't use the -a option, it will process all airports.
+
+### One Step Update
+
+If you don't care about the details, and just want to update the data to the latest available file published, navigate to the /scripts folder and issue the following command
+```
+./updateData.sh <latest filename>
+
+./updateData.sh tsa-throughput-april-19-2020-to-april-25-2020.pdf
+```
+This will convert the .pdf file to json and then create .csv files and figures based on the latest data.
+
+## Design Decisions
+  * 2021-06-17 - GetTsaThroughputFile Function
+    * Decided to write PDF File to Blob Storage instead of Storage Queue. Size of a message in a queue is limited to 64K, far less than the size of a TSA Throughput file.
+    * Updated [System Component Diagram](doc/SystemComponentDiagram.png) to reflect the change.

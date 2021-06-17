@@ -3,10 +3,15 @@ using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc;
+
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+
 using Microsoft.Extensions.Logging;
+
 using HtmlAgilityPack;
+
 
 namespace TsaThroughput.Data.Raw
 {
@@ -15,19 +20,31 @@ namespace TsaThroughput.Data.Raw
         private static readonly HttpClient _httpClient = new HttpClient();
 
         [FunctionName("GetTsaThroughputFile")]
-        public static async void Run([TimerTrigger("1/1 * * * *")]TimerInfo myTimer, ILogger log) {
+        public static async Task Run(
+            [TimerTrigger("1/1 * * * *")] TimerInfo myTimer,
+            [Blob("data/stage/tsa/throughput/pdffile.pdf", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream pdfStream,
+            ILogger log, 
+            ExecutionContext context)
+        {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
             var latestThroughputFileUrl = await GetLatestThroughputFileUrl(log);
             log.LogInformation($"Latest throughputfiles is {latestThroughputFileUrl}");
 
             var pdf = await SaveThroughputPdfAsync(latestThroughputFileUrl);
+
+            var pdfWriter = new StreamWriter(pdfStream);
+            pdfWriter.Write(pdf);
+            pdfWriter.Flush();
+            log.LogInformation("Stream Saved");
+
         }
 
         //
         // GetLatestThroughputFileUrl(log)
         // Returns the Url of the latest TsaThroughputFile
-        private static async Task<string> GetLatestThroughputFileUrl(ILogger log) {
+        private static async Task<string> GetLatestThroughputFileUrl(ILogger log) 
+        {
             string website = "https://www.tsa.gov";
             string subUrl = "/foia/readingroom/";
 
@@ -36,7 +53,8 @@ namespace TsaThroughput.Data.Raw
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            // Extract the link so we can fetch it
+            // Extract the link so we can fetch it. Make sure it is a TSA Throughput File
+            // This assumes that the first file is always the latest
             var url = doc.DocumentNode
                 .SelectSingleNode("//a[@class='foia-reading-link'][contains(text(),'TSA Throughput')]")
                 .Attributes["href"].Value;
@@ -58,6 +76,7 @@ namespace TsaThroughput.Data.Raw
             request.Headers.TryAddWithoutValidation("Accept-Charset", "ISO-8859-1");
 
             using var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+            
             response.EnsureSuccessStatusCode();
 
             using var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
