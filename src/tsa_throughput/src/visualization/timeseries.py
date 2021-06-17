@@ -29,7 +29,7 @@ def get_stationarity(timeseries):
     std = plt.plot(rolling_std, color='black', label='Rolling Std')
     plt.legend(loc='best')
     plt.title('Rolling Mean & Standard Deviation')
-    plt.show()
+    #plt.show()
     
     # Dickey–Fuller test:
     result = adfuller(timeseries)
@@ -146,7 +146,16 @@ ax.fill_between(pred_ci.index,
 ax.set_xlabel('Date')
 ax.set_ylabel('Throughput')
 plt.legend()
-plt.show()
+#plt.show()
 
 #Prints forecasted values
-print(pred_uc.predicted_mean)
+#print(pred_uc.predicted_mean)
+
+#df wtih mean, variance and confidence interval.
+pred_uc_sf = pred_uc.summary_frame(alpha=0.05)
+forecastdf = pd.DataFrame(pred_uc_sf)
+#Drop rows that are not needed
+forecastdf = forecastdf.drop(['mean_se','mean_ci_lower','mean_ci_upper'], axis=1)
+
+#Exports to csv
+csv_export = forecastdf.to_csv(r'data/product/tsa/throughput/forecast/20210529.Forecast.csv', index=True)
