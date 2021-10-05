@@ -24,8 +24,8 @@ namespace TsaThroughputApp
     {
         public static async Task<int> Main(string[] args)
         {
-            string endpoint = "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/";
-            string apiKey = "e6ae82bdb8214d7690656ad0b9ce2e66";
+            string endpoint = "<Insert Endpoint>";
+            string apiKey = "<Insert Key>";
 
             var rootCommand = new RootCommand
             {

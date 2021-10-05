@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TsaThroughputApp": {
+      "commandName": "Project",
+      "commandLineArgs": "../../data/tsa-throughput-september-12-2021-to-september-18-2021.pdf ../../data/tsa-throughput-september-12-2021-to-september-18-2021.json",
+      "workingDirectory": "\\\\wsl.localhost\\Ubuntu\\home\\mloreng\\repos\\tsathroughput\\src\\TsaThroughputApp"
+    }
+  }
+}
