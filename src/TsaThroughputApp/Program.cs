@@ -50,7 +50,9 @@ namespace TsaThroughputApp
                 tsaThroughputOutputFile = outputFile;
 
                 var credential = new AzureKeyCredential(apiKey);
-                var client = new FormRecognizerClient(new Uri(endpoint), credential);
+                var client = new FormRecognizerClient(new Uri(endpoint), credential, new FormRecognizerClientOptions(FormRecognizerClientOptions.ServiceVersion.V2_0));
+                
+
 
                 TsaThroughput tsaThroughput = new TsaThroughput()
                 {
@@ -222,14 +224,20 @@ namespace TsaThroughputApp
                 Hours = new List<Throughput>()
             };
 
-            Throughput throughput = new Throughput()
+            try
             {
-                Hour = DateTime.Parse(currentDateString) + TimeSpan.Parse(currentHourString),
-                Amount = int.Parse(cells[cellCursor++].Text, NumberStyles.AllowThousands)
-            };
+                Throughput throughput = new Throughput()
+                {
+                    Hour = DateTime.Parse(currentDateString) + TimeSpan.Parse(currentHourString),
+                    Amount = int.Parse(cells[cellCursor++].Text, NumberStyles.AllowThousands)
+                };
 
-            checkpoint.Hours.Add(throughput);
-
+                checkpoint.Hours.Add(throughput);
+            }
+            catch(System.FormatException e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
             return checkpoint;
         }
     }
