@@ -35,7 +35,7 @@ This will convert the .pdf file to json and then create .csv files and figures b
 
 ### A Little More Detail
 The *updateData.sh* script makes it easy to just get'er done. It's contains a couple of other scripts to convert from PDF to JSON, and another to build CSV files.
-### Running the TSAThroughputApp - Converting From PDF to JSON
+#### Running the TSAThroughputApp - Converting From PDF to JSON
 
 Navigate to the /scripts folder and issue the following command
 
@@ -43,7 +43,7 @@ Navigate to the /scripts folder and issue the following command
 ./cvtPdfToJson.sh ../data/tsa-throughput-april-19-2020-to-april-25-2020.pdf
 ```
 
-### Converting from JSON to CSV
+#### Converting from JSON to CSV
 
 Navigate to the /scripts folder and issue the following command
 
