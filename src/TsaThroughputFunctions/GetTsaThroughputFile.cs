@@ -29,7 +29,7 @@ namespace TsaThroughput.Data.Raw
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
             var latestThroughputFileUrl = await GetLatestThroughputFileUrl(log);
-            log.LogInformation($"Latest throughputfiles is {latestThroughputFileUrl}");
+            log.LogInformation($"Latest throughputfiles {latestThroughputFileUrl}");
 
             var pdf = await SaveThroughputPdfAsync(latestThroughputFileUrl);
 
@@ -99,6 +99,9 @@ namespace TsaThroughput.Data.Raw
             response.EnsureSuccessStatusCode();
 
             using var responseStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            var memoryStream = new MemoryStream();
+            responseStream.CopyTo(memoryStream);
+            File.WriteAllBytes("myfile.pdf", memoryStream.GetBuffer());
             using var streamReader = new StreamReader(responseStream);
 
             string pdf = await streamReader.ReadToEndAsync().ConfigureAwait(false);
