@@ -23,6 +23,18 @@ At a high level, the project is organized into 3 main folders:
 
 ### Prerequisites
 
+### One Step Update
+
+If you don't care about the details, and just want to update the data to the latest available file published, navigate to the /scripts folder and issue the following command
+```
+./updateData.sh <latest filename>
+
+./updateData.sh tsa-throughput-april-19-2020-to-april-25-2020.pdf
+```
+This will convert the .pdf file to json and then create .csv files and figures based on the latest data.
+
+### A Little More Detail
+The *updateData.sh* script makes it easy to just get'er done. It's contains a couple of other scripts to convert from PDF to JSON, and another to build CSV files.
 ### Running the TSAThroughputApp - Converting From PDF to JSON
 
 Navigate to the /scripts folder and issue the following command
@@ -41,15 +53,6 @@ Navigate to the /scripts folder and issue the following command
 
 The above command will process all of the files in the /data/raw/tsa/throughput folder and filter based on -a AIRPORTCODE. If you don't use the -a option, it will process all airports.
 
-### One Step Update
-
-If you don't care about the details, and just want to update the data to the latest available file published, navigate to the /scripts folder and issue the following command
-```
-./updateData.sh <latest filename>
-
-./updateData.sh tsa-throughput-april-19-2020-to-april-25-2020.pdf
-```
-This will convert the .pdf file to json and then create .csv files and figures based on the latest data.
 
 ## Design Decisions
   * 2021-06-17 - GetTsaThroughputFile Function
