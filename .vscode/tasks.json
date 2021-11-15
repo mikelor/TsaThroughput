@@ -44,7 +44,7 @@
       },
       "problemMatcher": "$msCompile",
       "options": {
-        "cwd": "${workspaceFolder}/src/TsaThroughputFunctions"
+        "cwd": "${workspaceFolder}/src/TsaThroughputApp"
       }
     },
     {
