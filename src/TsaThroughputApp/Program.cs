@@ -24,8 +24,8 @@ namespace TsaThroughputApp
     {
         public static async Task<int> Main(string[] args)
         {
-            string endpoint = "<Insert Endpoint>";
-            string apiKey = "<Insert Key>";
+            var formRecognizerEndpointUri = new Uri(Environment.GetEnvironmentVariable("formRecognizerEndpointUri"));
+            var formRecognizerCredential = new AzureKeyCredential(Environment.GetEnvironmentVariable("formRecognizerApiKey"));
 
             var rootCommand = new RootCommand
             {
