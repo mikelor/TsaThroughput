@@ -24,8 +24,6 @@ namespace TsaThroughputApp
     {
         public static async Task<int> Main(string[] args)
         {
-            var formRecognizerEndpointUri = new Uri(Environment.GetEnvironmentVariable("formRecognizerEndpointUri"));
-            var formRecognizerCredential = new AzureKeyCredential(Environment.GetEnvironmentVariable("formRecognizerApiKey"));
 
             var rootCommand = new RootCommand
             {
@@ -49,11 +47,11 @@ namespace TsaThroughputApp
                 tsaThroughputInputFile = inputFile;
                 tsaThroughputOutputFile = outputFile;
 
-                var credential = new AzureKeyCredential(apiKey);
-                var client = new FormRecognizerClient(new Uri(endpoint), credential, new FormRecognizerClientOptions(FormRecognizerClientOptions.ServiceVersion.V2_0));
-                
-
-
+                // Setup the Form Recognizer Client
+                var formRecognizerEndpointUri = new Uri(Environment.GetEnvironmentVariable("formRecognizerEndpointUri"));
+                var formRecognizerCredential = new AzureKeyCredential(Environment.GetEnvironmentVariable("formRecognizerApiKey"));
+                var client = new FormRecognizerClient(formRecognizerEndpointUri, formRecognizerCredential, new FormRecognizerClientOptions(FormRecognizerClientOptions.ServiceVersion.V2_0));
+        
                 TsaThroughput tsaThroughput = new TsaThroughput()
                 {
                     Airports = new List<Airport>()

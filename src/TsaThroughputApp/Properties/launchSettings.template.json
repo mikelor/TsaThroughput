@@ -2,8 +2,8 @@
     "profiles": {
       "TsaThroughputApp": {
         "commandName": "Project",
-        "environmnetVariables": {
-          "formRecognizerEndpoint": "<endpoint>",
+        "environmentVariables": {
+          "formRecognizerEndpointUri": "<endpoint>",
           "formRecognizerApiKey": "<key>"
         },
         "workingDirectory": "~\\repos\\tsathroughput\\src\\TsaThroughputApp"
