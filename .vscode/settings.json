@@ -1,6 +1,7 @@
 {
-    "azureFunctions.deploySubpath": "src\\TsaThroughputFunctions/bin/Release/netcoreapp3.1/publish",
+    "azureFunctions.deploySubpath": "src\\TsaThroughputFunctions/bin/Release/net6.0/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~3",
-    "azureFunctions.preDeployTask": "publish"
+    "azureFunctions.preDeployTask": "publish",
+    "azureFunctions.projectSubpath": "src\\TsaThroughputFunctions"
 }
