@@ -1,5 +1,8 @@
 using System.IO.Compression;
 
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
@@ -25,15 +28,25 @@ namespace TsaThroughput.Data.Raw
             [TimerTrigger("1/1 * * * *")] MyInfo myTimer,
             FunctionContext context)
         {
-           // BlobOutputAttribute attribute = context.FunctionDefinition.OutputBindings.Queryable.First<BlobOutputAttribute>();
- 
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
 
             var latestThroughputFileUrl = await GetLatestThroughputFileUrl();
             var pdfFilename = latestThroughputFileUrl.Substring(latestThroughputFileUrl.LastIndexOf('/') + 1);
-            _logger.LogInformation($"Latest throughputfiles {latestThroughputFileUrl}");
 
+            string lastFileProcessed = Environment.GetEnvironmentVariable("LastFileProcessed");
+
+            if(lastFileProcessed.Equals(pdfFilename))
+            {
+                _logger.LogInformation($"Already Processed {pdfFilename}");
+            }
+            else
+            {
+                _logger.LogInformation($"New File Found {pdfFilename}");
+                Environment.SetEnvironmentVariable("LastFileProcessed", pdfFilename);
+            }
+
+            _logger.LogInformation($"Latest throughputfiles {latestThroughputFileUrl}");
             var pdf = await SaveThroughputPdfAsync(latestThroughputFileUrl);
             return pdf;
         }
