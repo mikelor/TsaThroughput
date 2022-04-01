@@ -1,6 +1,7 @@
 python ../src/tsa_throughput/src/data/make_airport_dataset.py dir -d ../data/raw/tsa/throughput                                      -o ../data/processed/tsa/throughput
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a ANC -o ../data/processed/tsa/throughput 
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a ATL -o ../data/processed/tsa/throughput
+python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a AUS -o ../data/processed/tsa/throughput
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a BOI -o ../data/processed/tsa/throughput      
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a BZN -o ../data/processed/tsa/throughput      
 python ../src/tsa_throughput/src/data/make_airport_dataset.py csv -f ../data/processed/tsa/throughput/TsaThroughput.Cache.csv -a DEN -o ../data/processed/tsa/throughput      

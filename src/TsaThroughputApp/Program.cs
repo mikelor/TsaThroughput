@@ -74,7 +74,7 @@ namespace TsaThroughputApp
 
                         // Skip the first row of the table, as it contains titles
                         if (table.Cells[cellCursor].RowIndex == 0)
-                            cellCursor += 8;
+                            cellCursor += 7;
 
                         // Loop through the cells until the end
                         while (cellCursor < table.Cells.Count)

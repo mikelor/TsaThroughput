@@ -10,10 +10,10 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/net5.0/TsaThroughputApp.dll",
+            "program": "${workspaceFolder}/bin/Debug/net6.0/TsaThroughputApp.dll",
             "args": [
-               "../../data/tsa-throughput-september-12-2021-to-september-18-2021.pdf",
-               "../../data/tsa-throughput-september-12-2021-to-september-18-2021.json"
+               "../../data/tsa-throughput-february-27-2022-to-march-5-2022.pdf",
+               "../../data/tsa-throughput-february-27-2022-to-march-5-2022.json"
             ],
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

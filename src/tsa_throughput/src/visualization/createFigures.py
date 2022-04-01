@@ -22,6 +22,7 @@ print(projectDir)
 airports = ['All',
             'ANC', 
             'ATL',
+            'AUS',
             'BOI',
             'BZN', 
             'DEN',
