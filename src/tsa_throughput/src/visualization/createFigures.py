@@ -38,15 +38,15 @@ airports = ['All',
             'SEA',
             'SJC',
             'SFO',
-            'TPA',
-            'Total']
+            'TPA']
 
 numAirports = 0
 dfc = pd.DataFrame()
 dfw = pd.DataFrame()
 for airport in airports:
-    
+    print(f'Loading data for: {airport}')
     df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+    print(f'{airport} loaded.')
     df.fillna(0, inplace=True)
     df.Date = pd.to_datetime(df['Date'])
 
@@ -65,6 +65,25 @@ for airport in airports:
 outputFile = f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.Total.csv'
 dfc.to_csv(outputFile, index=True)
 
+# Process Total
+#airports.append('Total')
+#df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+#print(f'{airport} loaded.')
+#df.fillna(0, inplace=True)
+#df.Date = pd.to_datetime(df['Date'])
+
+# Sum up the amount numbers by day for our graph
+#df['Total'] = df.sum(axis = 1, skipna = True)
+#dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
+
+# Get the average total of passengers per month
+#y = dfg['Total'].resample('W-MON').mean()
+#y = dfg['Total'].resample('MS').mean()
+#dfc[airport] = dfg['Total']
+#dfw[airport] = dfg['Total'].resample('W-MON').mean()
+
+
+# Setup to Graph
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
 
@@ -107,7 +126,4 @@ for airport in airports:
     plotFigure(plt, 'WeeklyMean', dfw[airport], airports, numAirports)
 
     numAirports += 1
-
-
-
 
