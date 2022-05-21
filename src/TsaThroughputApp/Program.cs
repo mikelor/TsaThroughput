@@ -15,8 +15,11 @@ using Azure;
 using Azure.AI.FormRecognizer;
 using Azure.AI.FormRecognizer.Models;
 using Azure.AI.FormRecognizer.Training;
-
+using Tabula;
+using Tabula.Detectors;
+using Tabula.Extractors;
 using TsaThroughputApp.Models;
+using UglyToad.PdfPig;
 
 namespace TsaThroughputApp
 {
@@ -47,20 +50,174 @@ namespace TsaThroughputApp
                 tsaThroughputInputFile = inputFile;
                 tsaThroughputOutputFile = outputFile;
 
-                // Setup the Form Recognizer Client
-                var formRecognizerEndpointUri = new Uri(Environment.GetEnvironmentVariable("formRecognizerEndpointUri"));
-                var formRecognizerCredential = new AzureKeyCredential(Environment.GetEnvironmentVariable("formRecognizerApiKey"));
-                var client = new FormRecognizerClient(formRecognizerEndpointUri, formRecognizerCredential, new FormRecognizerClientOptions(FormRecognizerClientOptions.ServiceVersion.V2_0));
-        
+                // Setup the root node for the Json file
                 TsaThroughput tsaThroughput = new TsaThroughput()
                 {
                     Airports = new List<Airport>()
                 };
 
-                Airport airport = new Airport();
+                // Setup the Airport 
+                //Airport airport = new Airport();
                 Checkpoint checkpoint;
                 string currentDateString = string.Empty;
                 string currentHourString = string.Empty;
+
+                // Use Tabula
+                using (PdfDocument document = PdfDocument.Open(tsaThroughputInputFile, new ParsingOptions() { ClipPaths = true }))
+                {
+                    IExtractionAlgorithm ea = new SpreadsheetExtractionAlgorithm();
+
+                    ObjectExtractor oe = new ObjectExtractor(document);
+                    PageIterator pageIterator = oe.Extract();
+                    while (pageIterator.MoveNext())
+                    {
+                        var page = pageIterator.Current;
+
+                        List<Table> tables = ea.Extract(page);
+
+                        int currentTable = 0;
+                        foreach(Table table in tables)
+                        {
+                            currentTable++;
+
+                            Console.WriteLine($"Table {currentTable} =============================================================");
+
+                            // Only look at tables with more than //TODO: 7? Columns
+                            // This means we are looking at the table containing the data
+                            if(table.ColumnCount > 7)
+                            {
+                                Console.WriteLine($"Rows: {table.RowCount}, Cols: {table.ColumnCount} -------------------------------------------");
+
+                                int currentRow = 0;
+                                foreach (IList<Cell> row in table.Rows)
+                                {
+
+                                    // Skip the table header row
+                                    if(currentRow > 0)
+                                    {
+                                        int currentCell = 0;
+
+                                        // Enumerate through the list of cells. We chose to use an enumerator instead of a foreach loop so 
+                                        // that we can advance to the next cell in the list within the inital enumeration.
+                                        using (var enumerator = row.GetEnumerator())
+                                        {
+                                            Cell cell;
+                                            cell = enumerator.Current;
+
+                                            do 
+                                            {
+
+                                                switch(currentCell)
+                                                {
+                                                    case 0:
+                                                        break;
+
+                                                    // Date
+                                                    case 1:
+                                                        // Sometimes the date spans more than one cell. Especially in the case of 2 digit months and days.
+                                                        // In this case it will return a string like "11/22/202 0"
+                                                        //   We remove spaces to handle this case
+                                                        // In other cases it may pick up the 0 on the second line as a new date
+                                                        //   To handle this, we only update the date if it parses to a valid date otherwise, we continue with the previous vlue
+                                                        DateTime currentDate;
+                                                        if(DateTime.TryParse(Regex.Replace(cell.GetText(), @"\s+", ""), out currentDate))
+                                                        {
+                                                            currentDateString = currentDate.ToString("MM/dd/yyyy");
+                                                        }
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+                                                        break;
+
+                                                    // Hour
+                                                    case 2:
+                                                        cell = enumerator.Current;
+                                                        currentHourString = cell.GetText();
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+                                                        break;
+
+
+                                                    // Airport
+                                                    case 3:
+                                                        cell = enumerator.Current;
+                                                        var airportCode = cell.GetText();
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+
+                                                        cell = enumerator.Current;
+                                                        var airportName = cell.GetText();
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+
+                                                        cell = enumerator.Current;
+                                                        var city = cell.GetText();
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+
+                                                        cell = enumerator.Current;
+                                                        var state = cell.GetText();
+                                                        enumerator.MoveNext();
+                                                        currentCell++;
+
+                                                        Airport airport = new Airport()
+                                                        {
+                                                            AirportCode = airportCode,
+                                                            AirportName = airportName,
+                                                            City = city,
+                                                            State = state,
+
+                                                            Days = new List<Day>()
+                                                        };
+
+
+                                                        Airport existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
+                                                        if(existingAirport != null)
+                                                        {
+                                                            // See if the day already exists for this airport
+                                                            Day existingDay = existingAirport.Days.Find(d => d.Date.Equals((airport.Days.First<Day>()).Date));
+                                                            if(existingDay != null)
+                                                            {
+                                                                // See if the checkpoint exists for this airport
+                                                                Checkpoint existingCheckpoint = existingDay.Checkpoints.Find(c => c.CheckpointName.Equals(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().CheckpointName));
+                                                                if(existingCheckpoint != null)
+                                                                {
+                                                                    existingCheckpoint.Hours.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().Hours.First<Throughput>());
+                                                                }
+                                                                else
+                                                                {
+                                                                    existingDay.Checkpoints.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>());
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                existingAirport.Days.Add(airport.Days.First<Day>());
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            tsaThroughput.Airports.Add(airport);
+                                                        }
+                                                        break;
+                                                       
+                                                }
+                                            } while(enumerator.MoveNext());
+                                    
+                                        }
+                                        Console.WriteLine();
+                                    }
+
+                                    currentRow++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*
+                // Setup the Form Recognizer Client
+                var formRecognizerEndpointUri = new Uri(Environment.GetEnvironmentVariable("formRecognizerEndpointUri"));
+                var formRecognizerCredential = new AzureKeyCredential(Environment.GetEnvironmentVariable("formRecognizerApiKey"));
+                var client = new FormRecognizerClient(formRecognizerEndpointUri, formRecognizerCredential, new FormRecognizerClientOptions(FormRecognizerClientOptions.ServiceVersion.V2_0));
 
                 using FileStream stream = new FileStream(tsaThroughputInputFile, FileMode.Open);
 
@@ -175,12 +332,15 @@ namespace TsaThroughputApp
                         }
                     }
                 }
+ 
 
                 using FileStream fs = File.Create(tsaThroughputOutputFile);
                 await JsonSerializer.SerializeAsync(fs, tsaThroughput);
 
                 Console.WriteLine($"Processed {formPages.Count} Pages.");
                 Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
+
+                */
             });
             
             return await Task.FromResult<int>(rootCommand.InvokeAsync(args).Result);

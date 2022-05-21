@@ -1,9 +1,12 @@
 {
-  "profiles": {
-    "TsaThroughputApp": {
-      "commandName": "Project",
-      "commandLineArgs": "../../data/tsa-throughput-september-12-2021-to-september-18-2021.pdf ../../data/tsa-throughput-september-12-2021-to-september-18-2021.json",
-      "workingDirectory": "\\\\wsl.localhost\\Ubuntu\\home\\mloreng\\repos\\tsathroughput\\src\\TsaThroughputApp"
+    "profiles": {
+      "TsaThroughputApp": {
+        "commandName": "Project",
+        "environmentVariables": {
+          "formRecognizerEndpointUri": "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/",
+          "formRecognizerApiKey": "0d9a2f2d34454fd0ab25363ea0013f40"
+        },
+        "workingDirectory": "~\\repos\\tsathroughput\\src\\TsaThroughputApp"
+      }
     }
   }
-}
