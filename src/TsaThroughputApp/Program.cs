@@ -57,7 +57,7 @@ namespace TsaThroughputApp
                 };
 
                 // Setup the Airport 
-                //Airport airport = new Airport();
+                Airport airport = new Airport();
                 Checkpoint checkpoint;
                 string currentDateString = string.Empty;
                 string currentHourString = string.Empty;
@@ -93,114 +93,118 @@ namespace TsaThroughputApp
                                 {
 
                                     // Skip the table header row
-                                    if(currentRow > 0)
+                                    if(currentRow > 2)
                                     {
                                         int currentCell = 0;
 
                                         // Enumerate through the list of cells. We chose to use an enumerator instead of a foreach loop so 
                                         // that we can advance to the next cell in the list within the inital enumeration.
-                                        using (var enumerator = row.GetEnumerator())
+                                        for(currentCell = 0; currentCell < row.Count; currentCell++)
                                         {
-                                            Cell cell;
-                                            cell = enumerator.Current;
-
-                                            do 
+                                            var cell = row[currentCell];
+                                            switch(currentCell)
                                             {
+                                                case 0:
+                                                case 1:
+                                                    break;
 
-                                                switch(currentCell)
-                                                {
-                                                    case 0:
-                                                        break;
+                                                // Date
+                                                case 2:
+                                                    // Sometimes the date spans more than one cell. Especially in the case of 2 digit months and days.
+                                                    // In this case it will return a string like "11/22/202 0"
+                                                    //   We remove spaces to handle this case
+                                                    // In other cases it may pick up the 0 on the second line as a new date
+                                                    //   To handle this, we only update the date if it parses to a valid date otherwise, we continue with the previous vlue
+                                                    
 
-                                                    // Date
-                                                    case 1:
-                                                        // Sometimes the date spans more than one cell. Especially in the case of 2 digit months and days.
-                                                        // In this case it will return a string like "11/22/202 0"
-                                                        //   We remove spaces to handle this case
-                                                        // In other cases it may pick up the 0 on the second line as a new date
-                                                        //   To handle this, we only update the date if it parses to a valid date otherwise, we continue with the previous vlue
-                                                        DateTime currentDate;
-                                                        if(DateTime.TryParse(Regex.Replace(cell.GetText(), @"\s+", ""), out currentDate))
+                                                    DateTime currentDate;
+                                                    if(DateTime.TryParse(Regex.Replace(cell.GetText(), @"\s+", ""), out currentDate))
+                                                    {
+                                                        currentDateString = currentDate.ToString("MM/dd/yyyy");
+                                                    }
+                                                    break;
+
+                                                // Hour
+                                                case 3:
+                                                    currentHourString = GetCellText(row, ref currentCell);
+                                                    currentCell--;
+                                                    break;
+
+                                                // Airport
+                                                case 4:
+                                                    airport = CreateAirport(row, currentDateString, currentHourString, ref currentCell);
+                                                    Airport existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
+                                                    if(existingAirport != null)
+                                                    {
+                                                        // See if the day already exists for this airport
+                                                        Day existingDay = existingAirport.Days.Find(d => d.Date.Equals((airport.Days.First<Day>()).Date));
+                                                        if(existingDay != null)
                                                         {
-                                                            currentDateString = currentDate.ToString("MM/dd/yyyy");
-                                                        }
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-                                                        break;
-
-                                                    // Hour
-                                                    case 2:
-                                                        cell = enumerator.Current;
-                                                        currentHourString = cell.GetText();
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-                                                        break;
-
-
-                                                    // Airport
-                                                    case 3:
-                                                        cell = enumerator.Current;
-                                                        var airportCode = cell.GetText();
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-
-                                                        cell = enumerator.Current;
-                                                        var airportName = cell.GetText();
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-
-                                                        cell = enumerator.Current;
-                                                        var city = cell.GetText();
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-
-                                                        cell = enumerator.Current;
-                                                        var state = cell.GetText();
-                                                        enumerator.MoveNext();
-                                                        currentCell++;
-
-                                                        Airport airport = new Airport()
-                                                        {
-                                                            AirportCode = airportCode,
-                                                            AirportName = airportName,
-                                                            City = city,
-                                                            State = state,
-
-                                                            Days = new List<Day>()
-                                                        };
-
-
-                                                        Airport existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
-                                                        if(existingAirport != null)
-                                                        {
-                                                            // See if the day already exists for this airport
-                                                            Day existingDay = existingAirport.Days.Find(d => d.Date.Equals((airport.Days.First<Day>()).Date));
-                                                            if(existingDay != null)
+                                                            // See if the checkpoint exists for this airport
+                                                            Checkpoint existingCheckpoint = existingDay.Checkpoints.Find(c => c.CheckpointName.Equals(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().CheckpointName));
+                                                            if(existingCheckpoint != null)
                                                             {
-                                                                // See if the checkpoint exists for this airport
-                                                                Checkpoint existingCheckpoint = existingDay.Checkpoints.Find(c => c.CheckpointName.Equals(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().CheckpointName));
-                                                                if(existingCheckpoint != null)
-                                                                {
-                                                                    existingCheckpoint.Hours.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().Hours.First<Throughput>());
-                                                                }
-                                                                else
-                                                                {
-                                                                    existingDay.Checkpoints.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>());
-                                                                }
+                                                                existingCheckpoint.Hours.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>().Hours.First<Throughput>());
                                                             }
                                                             else
                                                             {
-                                                                existingAirport.Days.Add(airport.Days.First<Day>());
+                                                                existingDay.Checkpoints.Add(airport.Days.First<Day>().Checkpoints.First<Checkpoint>());
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            tsaThroughput.Airports.Add(airport);
+                                                            existingAirport.Days.Add(airport.Days.First<Day>());
                                                         }
-                                                        break;
-                                                       
+                                                    }
+                                                    else
+                                                    {
+                                                        tsaThroughput.Airports.Add(airport);
+                                                    }
+                                                    currentCell--;
+                                                    break;
+
+                                                                                            
+                                                // Checkpoint
+                                                case 8:
+                                                    // Instantiate a checkpoint object from the current cell
+                                                    checkpoint = CreateCheckpoint(row, currentDateString, currentHourString, ref currentCell);
+
+                                                    // Get the associated airport from our master list of airports.
+                                                    existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
+                                                    currentCell--;
+
+                                                    if(existingAirport != null)
+                                                    {
+                                                        // Get the checkpoint for the last day loaded
+                                                        Day curDay = existingAirport.Days.Last<Day>();
+                                                        Checkpoint curCheckpoint = curDay.Checkpoints.Find(c => c.CheckpointName.Equals(checkpoint.CheckpointName));
+                                                        if (curCheckpoint != null)
+                                                        {
+                                                            curCheckpoint.Hours.Add(checkpoint.Hours.First<Throughput>());
+                                                        }
+                                                        else
+                                                        {
+                                                            curDay.Checkpoints.Add(checkpoint);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        // We shouldn't get here, but lets write it out just in case
+                                                        Console.WriteLine($"Unable to retrieve airport for Checkpoint: {currentDateString}/{currentHourString}/{airport.AirportCode}/{checkpoint.CheckpointName}");
+                                                    }
+                                                    break;
+
+                                                default:
+                                                {
+                                                    // We're not supposed to get here, but sometimes the form recognizer will recognize the second line
+                                                    // in two line row as a new cell. For now we'll write out the offending cell and
+                                                    // increment the cellCursor which should get us on track
+                                                    // TODO: Append the text to the proper field. This only occurs in AirportName so far.
+                                                    Console.WriteLine($"{page.PageNumber}/{currentHourString}/{currentCell}/{GetCellText(row, ref currentCell)}");
+                                                    break;
                                                 }
-                                            } while(enumerator.MoveNext());
+                                            }
+                                        
                                     
                                         }
                                         Console.WriteLine();
@@ -346,7 +350,61 @@ namespace TsaThroughputApp
             return await Task.FromResult<int>(rootCommand.InvokeAsync(args).Result);
         }
 
-        private static Airport CreateAirport(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
+
+        private static string GetCellText(IList<Cell> row, ref int currentCell)
+        {
+            Cell cell = row[currentCell];
+            string cellText = cell.GetText();
+            currentCell++;
+
+            return cellText;
+        }
+
+        private static Airport CreateAirport(IList<Cell> row, string currentDateString, string currentHourString, ref int currentCell)
+        {
+            
+            Airport airport = new Airport()
+            {
+                AirportCode = GetCellText(row, ref currentCell),
+                AirportName = GetCellText(row, ref currentCell),
+                City = GetCellText(row, ref currentCell),
+                State = GetCellText(row, ref currentCell),
+
+                Days = new List<Day>()
+            };
+
+            return airport;
+        }
+
+        private static Checkpoint CreateCheckpoint(IList<Cell> row, string currentDateString, string currentHourString, ref int currentCell)
+        {
+            Checkpoint checkpoint = new Checkpoint()
+            {
+                CheckpointName = GetCellText(row, ref currentCell),
+
+                Hours = new List<Throughput>()
+            };
+
+            try
+            {
+                Throughput throughput = new Throughput()
+                {
+                    Hour = DateTime.Parse(currentDateString) + TimeSpan.Parse(currentHourString),
+                    Amount = int.Parse(GetCellText(row, ref currentCell), NumberStyles.AllowThousands)
+                };
+
+                checkpoint.Hours.Add(throughput);
+            }
+            catch(System.FormatException e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
+            return checkpoint;
+        }
+
+
+
+        private static Airport CreateAirport2(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
         {
             Airport airport = new Airport()
             {
@@ -358,7 +416,7 @@ namespace TsaThroughputApp
                 Days = new List<Day>()
             };
 
-            Checkpoint checkpoint = CreateCheckpoint(cells, currentDateString, currentHourString, ref cellCursor);
+            Checkpoint checkpoint = CreateCheckpoint2(cells, currentDateString, currentHourString, ref cellCursor);
 
             Day day = new Day()
             {
@@ -373,7 +431,7 @@ namespace TsaThroughputApp
             return airport;
         }
 
-        private static Checkpoint CreateCheckpoint(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
+        private static Checkpoint CreateCheckpoint2(IReadOnlyList<FormTableCell> cells, string currentDateString, string currentHourString, ref int cellCursor)
         {
             Checkpoint checkpoint = new Checkpoint()
             {
