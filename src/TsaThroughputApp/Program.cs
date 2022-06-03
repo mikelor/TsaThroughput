@@ -23,8 +23,54 @@ using UglyToad.PdfPig;
 
 namespace TsaThroughputApp
 {
+    enum CellType
+    {
+        Blank = 0,
+        Date = 1,
+        Time = 2,
+        Airport = 4,
+        Checkpoint = 5
+    };
     class Program
     {
+        public static CellType GetCellType(Cell cell, Cell nextCell)
+        {
+            CellType cellType = CellType.Blank;
+
+            String cellText = cell.GetText();
+
+            if(!cellText.Equals(""))
+            {
+                DateTime date;
+                if(cellText.Length > 5 && DateTime.TryParse(Regex.Replace(cellText, @"\s+", ""), out date))
+                {
+                    cellType = CellType.Date;
+                }
+                else if(cellText.Length == 5 && cellText.Contains(":"))
+                {
+                    cellType = CellType.Time;
+                }
+                else if(cellText.Length == 3)
+                {
+                    int throughputAmount = 0;
+                    if(Int32.TryParse(Regex.Replace(nextCell.GetText(), @",", ""), out throughputAmount))
+                    {
+                        cellType = CellType.Checkpoint;
+                    }
+                    else
+                    {
+                        cellType = CellType.Airport;
+                    }
+                }
+                else
+                {
+                    cellType = CellType.Checkpoint;
+                }
+
+            }
+
+            return cellType;
+        }
         public static async Task<int> Main(string[] args)
         {
 
@@ -61,7 +107,7 @@ namespace TsaThroughputApp
                 Checkpoint checkpoint;
                 string currentDateString = string.Empty;
                 string currentHourString = string.Empty;
-                bool isHourOrBlankCell = false;
+                int pageCount = 0;
 
                 // Use Tabula
                 using (PdfDocument document = PdfDocument.Open(tsaThroughputInputFile, new ParsingOptions() { ClipPaths = true }))
@@ -70,9 +116,11 @@ namespace TsaThroughputApp
 
                     ObjectExtractor oe = new ObjectExtractor(document);
                     PageIterator pageIterator = oe.Extract();
+
                     while (pageIterator.MoveNext())
                     {
                         var page = pageIterator.Current;
+                        pageCount++;
 
                         List<Table> tables = ea.Extract(page);
 
@@ -88,12 +136,7 @@ namespace TsaThroughputApp
                                 int currentRow = 0;
                                 foreach (IList<Cell> row in table.Rows)
                                 {
-                                    foreach(Cell cell in row)
-                                    {
-                                        Console.Write($"[{cell.GetText()}]");
-                                    }
-                                    Console.WriteLine();
-                                    //continue;
+
 
                                     // Skip the table header row and footer row
                                     if(currentRow > 2 && currentRow < (table.Rows.Count - 1))
@@ -102,76 +145,44 @@ namespace TsaThroughputApp
 
                                         // Enumerate through the list of cells. We chose to use an enumerator instead of a foreach loop so 
                                         // that we can advance to the next cell in the list within the inital enumeration.
-                                        for(currentCell = 0; currentCell < row.Count; currentCell++)
+                                        for(currentCell = 0; currentCell < row.Count -1; currentCell++)
                                         {
-                                            var cell = row[currentCell];
-                                            switch(currentCell)
+                                            Cell cell = row[currentCell];
+                                            Cell nextCell = row[currentCell +1];
+
+                                            switch(GetCellType(cell, nextCell))
                                             {
-                                                case 0:
-                                                case 1:
+                                                case CellType.Blank:
                                                     break;
 
                                                 // Date
-                                                case 2:
+                                                case CellType.Date:
                                                     // Sometimes the date spans more than one cell. Especially in the case of 2 digit months and days.
                                                     // In this case it will return a string like "11/22/202 0"
                                                     //   We remove spaces to handle this case
                                                     // In other cases it may pick up the 0 on the second line as a new date
                                                     //   To handle this, we only update the date if it parses to a valid date otherwise, we continue with the previous vlue
                                                     DateTime currentDate;
-                                                    String dateOrHourOrBlankString = row[currentCell].GetText();
-                                                    if(dateOrHourOrBlankString.Length > 5)
+                                                    String dateString = row[currentCell].GetText();
+                                                    if(DateTime.TryParse(Regex.Replace(dateString, @"\s+", ""), out currentDate))
                                                     {
-                                                        if(DateTime.TryParse(Regex.Replace(dateOrHourOrBlankString, @"\s+", ""), out currentDate))
-                                                        {
-                                                            currentDateString = currentDate.ToString("MM/dd/yyyy");
-                                                            isHourOrBlankCell = false;
-                                                        }
+                                                        currentDateString = currentDate.ToString("MM/dd/yyyy");
                                                     }
-                                                    else if(!dateOrHourOrBlankString.Equals(""))
-                                                    {
-                                                        currentHourString = dateOrHourOrBlankString;
-                                                        isHourOrBlankCell = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        isHourOrBlankCell = true;
-                                                    }
-
                                                     break;
 
                                                 // Hour
-                                                case 3:
-                                                    if(isHourOrBlankCell == false)
-                                                    {
-                                                        currentHourString = row[currentCell].GetText();
-                                                    }
-                                                    else
-                                                    {
-                                                        if(!row[currentCell].GetText().Equals(""))
-                                                        {
-                                                            airport = AddAirport(tsaThroughput, row, currentDateString, currentHourString, ref currentCell);
-                                                        }
-                                                        else
-                                                        {
-                                                            currentCell += 3;
-                                                        }
-                                                    }
+                                                case CellType.Time:
+                                                    currentHourString = row[currentCell].GetText();
                                                     break;
 
-                                                case 4:
+                                                case CellType.Airport:
                                                     airport = AddAirport(tsaThroughput, row, currentDateString, currentHourString, ref currentCell);
                                                     break;
 
                                                 // Checkpoint
-                                                case 7:
-                                                case 8:
+                                                case CellType.Checkpoint:
                                                     // Instantiate a checkpoint object from the current cell
                                                     checkpoint = AddCheckpoint(tsaThroughput, airport, row, currentDateString, currentHourString, ref currentCell);
-                                                    break;
-
-                                                case 9:
-                                                    // Blank Cell
                                                     break;
 
                                                 default:
@@ -194,9 +205,14 @@ namespace TsaThroughputApp
                                 }
                             }
                         }
-                        Console.WriteLine("--------------------------");
                     }
                 }
+
+                using FileStream fs = File.Create(tsaThroughputOutputFile);
+                await JsonSerializer.SerializeAsync(fs, tsaThroughput);
+
+                Console.WriteLine($"Processed {pageCount} Pages.");
+                Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
             });
             
             return await Task.FromResult<int>(rootCommand.InvokeAsync(args).Result);
@@ -208,6 +224,28 @@ namespace TsaThroughputApp
             Cell cell = row[currentCell];
             string cellText = cell.GetText();
             currentCell++;
+
+            // Somtimes a blank cell gets inserted and everything shifts right by 1
+            // Lets continue until we find a non-blank cell;
+            while(cellText.Equals(""))
+            {
+                if(currentCell < row.Count -1)
+                {
+                    cell = row[currentCell];
+                    cellText = cell.GetText();
+                    currentCell++;
+                }
+                else
+                {
+                    Console.WriteLine("Ooops");
+                    foreach(Cell c in row)
+                    {
+                        Console.Write($"[{c.GetText()}]");
+                    }
+                    Console.WriteLine();
+                    break;
+                }
+            }
 
             return cellText;
         }
@@ -254,7 +292,7 @@ namespace TsaThroughputApp
                 Throughput throughput = new Throughput()
                 {
                     Hour = DateTime.Parse(currentDateString) + TimeSpan.Parse(currentHourString),
-                    Amount = int.Parse(GetCellText(row, ref currentCell), NumberStyles.AllowThousands)
+                    Amount = int.Parse(Regex.Replace(GetCellText(row, ref currentCell), @",", ""), NumberStyles.AllowThousands)
                 };
 
                 checkpoint.Hours.Add(throughput);
@@ -269,8 +307,6 @@ namespace TsaThroughputApp
         private static Airport AddAirport(TsaThroughput tsaThroughput, IList<Cell> row, string currentDateString, string currentHourString, ref int currentCell)
         {
             Airport airport = CreateAirport(row, currentDateString, currentHourString, ref currentCell);
-            Console.WriteLine($"Airport: {airport.AirportCode}");
-
             currentCell--;
 
             Airport existingAirport = tsaThroughput.Airports.Find(a => a.AirportCode.Equals(airport.AirportCode));
