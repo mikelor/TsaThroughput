@@ -3,8 +3,8 @@
       "TsaThroughputApp": {
         "commandName": "Project",
         "environmentVariables": {
-          "formRecognizerEndpointUri": "<https://formRecognizerEndpooint.cognitiveservices.azure.com/",
-          "formRecognizerApiKey": "<formRecognizerApiKey>"
+          "formRecognizerEndpointUri": "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/",
+          "formRecognizerApiKey": "0d9a2f2d34454fd0ab25363ea0013f40"
         },
         "workingDirectory": "~\\repos\\tsathroughput\\src\\TsaThroughputApp"
       }
