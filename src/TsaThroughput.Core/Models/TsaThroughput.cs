@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace TsaThroughputApp.Models
+namespace TsaThroughput.Core.Models
 {
     public class Throughput
     {
@@ -30,7 +27,7 @@ namespace TsaThroughputApp.Models
         public List<Day> Days { get; set; }
     }
 
-    public class TsaThroughput
+    public class TsaThroughputRoot
     {
         public List<Airport> Airports { get; set; }
     }
