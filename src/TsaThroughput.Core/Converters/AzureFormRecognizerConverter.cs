@@ -142,6 +142,8 @@ namespace TsaThroughput.Core.Converters
                 }
             }
 
+            Console.WriteLine($"Processed {formPages.Count} Pages.");
+            Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
             return tsaThroughput;
 
         }

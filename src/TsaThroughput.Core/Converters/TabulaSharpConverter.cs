@@ -9,6 +9,7 @@ using Tabula.Extractors;
 using UglyToad.PdfPig;
 
 using TsaThroughput.Core.Models;
+using Azure.AI.FormRecognizer.Models;
 
 namespace TsaThroughput.Core.Converters
 {
@@ -139,6 +140,8 @@ namespace TsaThroughput.Core.Converters
                     }
                 }
             }
+            Console.WriteLine($"Processed {pageCount} Pages.");
+            Console.WriteLine($"Airports: {tsaThroughput.Airports.Count}");
             return tsaThroughput;
         }
 

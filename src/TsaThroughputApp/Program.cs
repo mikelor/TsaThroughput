@@ -19,7 +19,7 @@ namespace TsaThroughputApp
             {
                 new Argument<string>(
                     "converter",
-                    "The algorithm to use for conversion FormRecognizer || Tabula-Sharp"
+                    "The algorithm to use for conversion FormRecognizer || TabulaSharp"
                 ),
                 new Argument<string>(
                     "inputFile",
@@ -44,7 +44,20 @@ namespace TsaThroughputApp
                 tsaThroughputInputFile = inputFile;
                 tsaThroughputOutputFile = outputFile;
 
-                ConverterContext context = new (new TabulaSharpConverter());
+                ConverterStrategy strategy;
+                switch(tsaConverter)
+                {
+                    case "TabulaSharp":
+                        strategy = new TabulaSharpConverter();
+                        break;
+                    case "AzureFormRecognizer":
+                        strategy = new AzureFormRecognizerConverter();
+                        break;
+                    default:
+                        strategy = new TabulaSharpConverter();
+                        break;
+                }
+                ConverterContext context = new (strategy);
                 TsaThroughputRoot tsaThroughput = await context.ConverterContextInterface(inputFile, outputFile);
                 
                 using FileStream fs = File.Create(tsaThroughputOutputFile);
