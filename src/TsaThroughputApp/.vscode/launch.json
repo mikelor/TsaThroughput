@@ -12,8 +12,8 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/bin/Debug/net6.0/TsaThroughputApp.dll",
             "args": [
-               "../../data/tsa-throughput-april-24-2022-to-april-30-2022.pdf",
-               "../../data/raw/tsa/throughput/tsa-throughput-april-24-2022-to-april-30-2022.json"
+               "../../data/tsa-throughput-data-2022-07-31-to-2022-08-06.pdf",
+               "../../data/raw/tsa/tsa-throughput-data-2022-07-31-to-2022-08-06.json"
             ],
             "cwd": "${workspaceFolder}",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
