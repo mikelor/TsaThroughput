@@ -1,12 +1,13 @@
 {
-    "profiles": {
-      "TsaThroughputApp": {
-        "commandName": "Project",
-        "environmentVariables": {
-          "formRecognizerEndpointUri": "<formRecognizerEndpointUri>",
-          "formRecognizerApiKey": "<formRecognizerApiKey>"
-        },
-        "workingDirectory": "~\\repos\\tsathroughput\\src\\TsaThroughputApp"
+  "profiles": {
+    "TsaThroughputApp": {
+      "commandName": "Project",
+      "commandLineArgs": "TabulaSharp ../../data/tsa_throughput_march_24_2019_to_march_30_2019.pdf ../../data/raw/tsa/tsa_throughput_march_24_2019_to_march_30_2019.json",
+      "workingDirectory": "\\\\wsl.localhost\\Ubuntu-20.04\\home\\mlorengo\\repos\\tsathroughput\\src\\TsaThroughputApp",
+      "environmentVariables": {
+        "formRecognizerEndpointUri": "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/",
+        "formRecognizerApiKey": "0d9a2f2d34454fd0ab25363ea0013f40"
       }
     }
   }
+}
