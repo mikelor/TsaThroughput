@@ -49,7 +49,7 @@ def createAnimation(projectDir, airport, outputDir, logger):
 	plt.xticks(rotation=45, ha="right", rotation_mode="anchor") #rotate the x-axis values
 
 	plt.grid(True)
-	plt.tight_layout(True)
+	plt.tight_layout()
 
 	animation = ani.FuncAnimation(plt.gcf(), animateChart, fargs=[dfg, logger], frames=len(dfg), interval=100)
 	animation.save(f'{outputDir}/TsaThroughput.{airportString}.mp4', writer='ffmpeg')
