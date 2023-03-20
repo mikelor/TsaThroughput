@@ -5,6 +5,8 @@ See sample input and output files in the [/data](./data) folder.
 
 ![Animation of TSA Throughput Data](doc/TsaThroughputAnimated.gif)
 
+Read [Three Years of TSA Throughput Data](https://mikelor.github.io/three-years-of-tsathroughput).
+
 Eventually this will be automated utilizing the below architecture
 ![System Component Diagram](doc/SystemComponentDiagram.png)
 
