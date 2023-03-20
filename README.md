@@ -3,9 +3,11 @@
 Monitors the TSA Published Statistics on the [FOIA Electronic Reading Room](https://www.tsa.gov/foia/readingroom) site. Ths codebase supports the processing of PDF files to JSON and CSV files. With this information, you can see TSA Throughput history. The following animation was created using this data.
 See sample input and output files in the [/data](./data) folder.
 
+Read [Three Years of TSA Throughput Data](https://mikelor.github.io/three-years-of-tsathroughput).
+
 ![Animation of TSA Throughput Data](doc/TsaThroughputAnimated.gif)
 
-Read [Three Years of TSA Throughput Data](https://mikelor.github.io/three-years-of-tsathroughput).
+
 
 Eventually this will be automated utilizing the below architecture
 ![System Component Diagram](doc/SystemComponentDiagram.png)
