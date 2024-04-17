@@ -51,7 +51,7 @@ for airport in airports:
     df.Date = pd.to_datetime(df['Date'])
 
     # Sum up the amount numbers by day for our graph
-    df['Total'] = df.sum(axis = 1, skipna = True)
+    df['Total'] = df.sum(axis = 1, numeric_only=True)
     dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
 
     # Get the average total of passengers per month
@@ -87,13 +87,12 @@ dfc.to_csv(outputFile, index=True)
 from pylab import rcParams
 rcParams['figure.figsize'] = 18, 8
 
-plt.rc('axes', titlesize=18)     # fontsize of the axes title
-plt.rc('axes', labelsize=14)     # fontsize of the x and y labels
-plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
-plt.rc('legend', fontsize=13)    # legend fontsize
-plt.rc('font', size=13)          # controls default text sizes
-
+plt.rcParams['font.size'] = 13
+plt.rcParams['axes.titlesize']  = 18 # fontsize of the axes title
+plt.rcParams['axes.labelsize']  = 14 # fontsize of the x and y labels
+plt.rcParams['xtick.labelsize'] = 13 # fontsize of the tick labels
+plt.rcParams['ytick.labelsize'] = 13 # fontsize of the tick labels
+plt.rcParams['legend.fontsize'] = 13
 
 def plotFigure(plt, plotTitle, df, labels, index):
     fig, ax = plt.subplots()
