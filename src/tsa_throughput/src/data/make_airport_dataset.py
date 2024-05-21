@@ -105,7 +105,7 @@ def processSingleFile(file, airportCode):
         data = json.load(f)
 
     #normalize and store in df
-    df = pandas.json_normalize(data,
+    df = pandas.read_json(data,
         record_path=['Airports', 'Days', 'Checkpoints', 'Hours'],
         meta=[
             ['Airports', 'Days', 'Checkpoints', 'CheckpointName'],
@@ -116,7 +116,7 @@ def processSingleFile(file, airportCode):
             ['Airports', 'State'],
         ],
     )
-
+    
     #Convert to datetime and get time
     df['Hour'] = pandas.to_datetime(df['Hour'], errors='coerce')
     df['Hour'] = df['Hour'].dt.time
