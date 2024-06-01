@@ -7,8 +7,6 @@ Read [Three Years of TSA Throughput Data](https://mikelor.github.io/three-years-
 
 ![Animation of TSA Throughput Data](doc/TsaThroughputAnimated.gif)
 
-
-
 Eventually this will be automated utilizing the below architecture
 ![System Component Diagram](doc/SystemComponentDiagram.png)
 
@@ -57,6 +55,21 @@ Navigate to the /scripts folder and issue the following command
 
 The above command will process all of the files in the /data/raw/tsa/throughput folder and filter based on -a AIRPORTCODE. If you don't use the -a option, it will process all airports.
 
+## Automated Generation of CSV Files for Airports
+
+The repository now includes an automated generation method for creating individual CSV files for each airport. This is achieved through the use of two scripts:
+
+- `scripts/cvtJsonToCsv.sh`: This script has been updated to dynamically generate CSV files for all airports listed in the JSON data. It iterates over all airport codes in the JSON files and generates CSV files for each airport code found.
+
+- `scripts/generateAirportCsvs.sh`: A new script that automates the generation of individual CSV files for each airport. It parses JSON data to extract airport codes and uses the modified `scripts/cvtJsonToCsv.sh` script to generate CSV files for each airport.
+
+To use the automated generation method to create CSV files for additional airports, run the following command in the `/scripts` directory:
+
+```
+./generateAirportCsvs.sh
+```
+
+This will generate CSV files for all airports listed in the JSON data and place them in the appropriate directory.
 
 ## Design Decisions
   * 2021-06-17 - GetTsaThroughputFile Function
