@@ -35,21 +35,20 @@ def processDir(inputDir, matchString, airportCode, outputDir, logger):
     numFilesProcessed = 0
 
     # Loop through the specified input directory looking for json files
-    for entry in os.scandir(inputDir):
+    for entry in sorted(os.scandir(inputDir), key=lambda e: e.name):
         if (entry.path.endswith('.json') and 
             entry.is_file()):
 
             # If a matchString was specified, let's ensure the entry matches
             if(not matchString or matchString in entry.path):
 
-                logger.info(f'Processing file: {entry.path}')
-
                 if(numFilesProcessed == 0):
-                    logger.info(f'Processing first file: {entry.path}')
+                    logger.info(f'Processing: {entry.name}')
                     df = processSingleFile(entry.path, airportCode)
                 else:
-                    logger.info(f'Processing additional files: {entry.path}')
-                    df = df.append(processSingleFile(entry.path, airportCode), ignore_index=True)
+                    logger.info(f'Processing: {entry.name}')
+                    #df = df.append(processSingleFile(entry.path, airportCode), ignore_index=True)
+                    df = pandas.concat([df, processSingleFile(entry.path, airportCode)], ignore_index=True)
                 
                 numFilesProcessed += 1
             else:
@@ -86,17 +85,18 @@ def processCsv(inputFile, airportCode, outputDir, logger):
     """
     logger.info(f'Processing file: {inputFile}')
 
-    df = pandas.read_csv(f'{inputFile}', header='infer')
+    fileDf = pandas.read_csv(f'{inputFile}', header='infer')
 
     # If an airportCode is specfied, let's filter on it
-    if(airportCode) :
-        df = df[df['AirportCode'] == airportCode]
+    for code in airportCode.splitlines():
+        logger.info(f'Processing: {code}')
+        df = fileDf[fileDf['AirportCode'] == code]
 
-    df = pivotDataframe(df)
+        df = pivotDataframe(df)
 
-    outputFile = f'{outputDir}/TsaThroughput.{airportCode}.csv'
-    logger.info(f'Output file: {outputFile}')
-    csv_export = df.to_csv(outputFile, index=False)
+        outputFile = f'{outputDir}/TsaThroughput.{code}.csv'
+        logger.info(f'Output file: {outputFile}')
+        csv_export = df.to_csv(outputFile, index=False)
 
 def processSingleFile(file, airportCode):
     
@@ -116,7 +116,7 @@ def processSingleFile(file, airportCode):
             ['Airports', 'State'],
         ],
     )
-
+    
     #Convert to datetime and get time
     df['Hour'] = pandas.to_datetime(df['Hour'], errors='coerce')
     df['Hour'] = df['Hour'].dt.time
