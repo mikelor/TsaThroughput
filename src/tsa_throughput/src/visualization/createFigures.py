@@ -1,10 +1,16 @@
 import numpy as np
 import pandas as pd
 
+import logging
+from dotenv import find_dotenv, load_dotenv
+from argparse import ArgumentParser
+
+
 import itertools
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 from matplotlib.dates import (MonthLocator, YearLocator)
+from pylab import rcParams
 
 import seaborn as sns
 import statsmodels.api as sm
@@ -13,57 +19,37 @@ from pathlib import Path
 # Based on the article - An End-to-End Project on Time Series Analysis and Forecasting with Python
 # https://towardsdatascience.com/an-end-to-end-project-on-time-series-analysis-and-forecasting-with-python-4835e6bf050b
 
-# Load the file into a dataframe and checkout the structure
-# Make sure you run this file from the project root folder
-projectDir = Path('.').resolve()
-print(projectDir)
 
-# Read in CSV file, Convert NaN values to 0's
-airports = ['All',
-            'ANC', 
-            'ATL',
-            'AUS',
-            'BOI',
-            'BZN', 
-            'DEN',
-            'DFW',
-            'FLL',
-            'LAS', 
-            'LAX', 
-            'MIA',
-            'MCO',
-            'MSO',
-            'PDX',
-            'PHX', 
-            'SEA',
-            'SJC',
-            'SFO',
-            'TPA']
 
-numAirports = 0
-dfc = pd.DataFrame()
-dfw = pd.DataFrame()
-for airport in airports:
-    print(f'Loading data for: {airport}')
-    df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
-    print(f'{airport} loaded.')
-    df.fillna(0, inplace=True)
-    df.Date = pd.to_datetime(df['Date'])
+def loadAirports(airports, dfc, dfw, logger):
+    # Load the file into a dataframe and checkout the structure
+    # Make sure you run this file from the project root folder
+    projectDir = Path('.').resolve()
+    print(projectDir)
 
-    # Sum up the amount numbers by day for our graph
-    df['Total'] = df.sum(axis = 1, numeric_only=True)
-    dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
+    numAirports = 0
 
-    # Get the average total of passengers per month
-    #y = dfg['Total'].resample('W-MON').mean()
-    #y = dfg['Total'].resample('MS').mean()
-    dfc[airport] = dfg['Total']
-    dfw[airport] = dfg['Total'].resample('W-MON').mean()
+    for airport in airports:
+        print(f'Loading data for: {airport}')
+        df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airport}.csv', header='infer')
+        print(f'{airport} loaded.')
+        df.fillna(0, inplace=True)
+        df.Date = pd.to_datetime(df['Date'])
 
-    numAirports += 1
+        # Sum up the amount numbers by day for our graph
+        df['Total'] = df.sum(axis = 1, numeric_only=True)
+        dfg = df.groupby('Date', as_index=True).agg({'Total': 'sum'})
 
-outputFile = f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.Total.csv'
-dfc.to_csv(outputFile, index=True)
+        # Get the average total of passengers per month
+        #y = dfg['Total'].resample('W-MON').mean()
+        #y = dfg['Total'].resample('MS').mean()
+        dfc[airport] = dfg['Total']
+        dfw[airport] = dfg['Total'].resample('W-MON').mean()
+
+        numAirports += 1
+
+    outputFile = f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.Total.csv'
+    dfc.to_csv(outputFile, index=True)
 
 # Process Total
 #airports.append('Total')
@@ -83,18 +69,13 @@ dfc.to_csv(outputFile, index=True)
 #dfw[airport] = dfg['Total'].resample('W-MON').mean()
 
 
-# Setup to Graph
-from pylab import rcParams
-rcParams['figure.figsize'] = 18, 8
-
-plt.rcParams['font.size'] = 13
-plt.rcParams['axes.titlesize']  = 18 # fontsize of the axes title
-plt.rcParams['axes.labelsize']  = 14 # fontsize of the x and y labels
-plt.rcParams['xtick.labelsize'] = 13 # fontsize of the tick labels
-plt.rcParams['ytick.labelsize'] = 13 # fontsize of the tick labels
-plt.rcParams['legend.fontsize'] = 13
-
 def plotFigure(plt, plotTitle, df, labels, index):
+
+    # Load the file into a dataframe and checkout the structure
+    # Make sure you run this file from the project root folder
+    projectDir = Path('.').resolve()
+    print(f'Plotting: {plotTitle}.{airports[index]}')
+
     fig, ax = plt.subplots()
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())  
@@ -110,19 +91,61 @@ def plotFigure(plt, plotTitle, df, labels, index):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.xaxis.set_major_locator(MonthLocator())
     plt.grid(True)
-    plt.savefig(f'{projectDir}/src/tsa_throughput/src/visualization/figures/Figure.{plotTitle}.{airports[numAirports]}.png')
+    plt.savefig(f'{projectDir}/src/tsa_throughput/src/visualization/figures/Figure.{plotTitle}.{airports[index]}.png')
     plt.close(fig)
 
 
-# Figure out the layout for the figure
-# https://towardsdatascience.com/dynamic-subplot-layout-in-seaborn-e777500c7386
-plotCount = len(airports)
+def plotAirports(airports, dfc, dfw, logger):
+    # Figure out the layout for the figure
+    # https://towardsdatascience.com/dynamic-subplot-layout-in-seaborn-e777500c7386
+    plotCount = len(airports)
 
-numAirports = 0
-for airport in airports:
+    # Setup to Graph
 
-    plotFigure(plt, 'Daily', dfc[airport], airports, numAirports)
-    plotFigure(plt, 'WeeklyMean', dfw[airport], airports, numAirports)
+    rcParams['figure.figsize'] = 18, 8
 
-    numAirports += 1
+    plt.rcParams['font.size'] = 13
+    plt.rcParams['axes.titlesize']  = 18 # fontsize of the axes title
+    plt.rcParams['axes.labelsize']  = 14 # fontsize of the x and y labels
+    plt.rcParams['xtick.labelsize'] = 13 # fontsize of the tick labels
+    plt.rcParams['ytick.labelsize'] = 13 # fontsize of the tick labels
+    plt.rcParams['legend.fontsize'] = 13 # legend fontsize
+    plt.rcParams['figure.titlesize'] = 18 # fontsize of the figure title
 
+
+    numAirports = 0
+    for airportCode in airports:
+        plotFigure(plt, 'Daily', dfc[airportCode], airports, numAirports)
+        plotFigure(plt, 'WeeklyMean', dfw[airportCode], airports, numAirports)
+
+        numAirports += 1
+
+
+if __name__ == '__main__':
+    #  python createFigures.py -a "airportCodes"
+    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
+
+    # not used in this stub but often useful for finding various files
+    project_dir = Path(__file__).resolve().parents[2]
+
+    # find .env automagically by walking up directories until it's found, then
+    # load up the .env entries as environment variables
+    load_dotenv(find_dotenv())
+
+    logger = logging.getLogger(__name__)
+    logger.info('Making final data set from raw data.')
+
+    parser = ArgumentParser()
+    parser.add_argument('-a', '--airportCodes', nargs='?', help = 'The Airport Code')
+
+    args = parser.parse_args()
+    
+    airports = args.airportCodes.splitlines()
+
+    dfc = pd.DataFrame()
+    dfw = pd.DataFrame()
+    loadAirports(airports, dfc, dfw, logger)
+    plotAirports(airports, dfc, dfw, logger)
+
+    logger.info('Finished making final data set from raw data.')
