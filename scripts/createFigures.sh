@@ -1,3 +1,6 @@
+echo "Ensure X Windows is configured for graphics.
+cmd.exe /c c:/tmp/xsrv.bat
+
 echo "Extracting airport codes from JSON files"
 # Navigate to the directory containing the JSON data files
 cd ../data/raw/tsa/throughput
