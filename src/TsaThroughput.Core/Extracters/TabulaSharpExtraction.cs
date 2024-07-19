@@ -44,16 +44,14 @@ namespace TsaThroughput.Core.Extracters
             using (PdfDocument document = PdfDocument.Open(inputFile, new ParsingOptions() { ClipPaths = false }))
             {
                 IExtractionAlgorithm ea = new SpreadsheetExtractionAlgorithm();
-
-                ObjectExtractor oe = new(document);
-                PageIterator pageIterator = oe.Extract();
+                PageIterator pageIterator = ObjectExtractor.Extract(document);
 
                 while (pageIterator.MoveNext())
                 {
                     var page = pageIterator.Current;
                     pageCount++;
 
-                    List<Table> tables = ea.Extract(page);
+                    IReadOnlyList<Table> tables = ea.Extract(page);
 
                     int currentTable = 0;
                     foreach (Table table in tables)
