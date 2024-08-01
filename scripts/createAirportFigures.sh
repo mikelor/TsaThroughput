@@ -1,5 +1,5 @@
-echo "Ensure X Windows is configured for graphics.
-cmd.exe /c c:/tmp/xsrv.bat
+echo "Ensure X Windows is configured for graphics."
+# sudo  '/mnt/c/Program Files/VcXsrv/VcXsrv.exe' -multiwindow -clipboard -ac -wgl -displayfd 720 &
 
 echo "Extracting airport codes from JSON files"
 # Navigate to the directory containing the JSON data files
