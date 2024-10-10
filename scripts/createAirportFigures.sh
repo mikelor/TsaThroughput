@@ -11,4 +11,7 @@ airport_codes=$(jq -r '.Airports[].AirportCode' *.json | sort -u)
 # Navigate back to the porject directory
 cd ../../../..
 python src/tsa_throughput/src/visualization/createFigures.py -a "$airport_codes"
+
+# Create a figure for all of the airports
+python src/tsa_throughput/src/visualization/createFigures.py -a "Total"
 cd scripts
