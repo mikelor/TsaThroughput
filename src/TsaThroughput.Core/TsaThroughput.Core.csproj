@@ -8,7 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.FormRecognizer" Version="4.1.0" />
-    <PackageReference Include="Tabula" Version="0.1.4-alpha001" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\tabula-sharp\Tabula\Tabula.csproj" />
   </ItemGroup>
 
 </Project>

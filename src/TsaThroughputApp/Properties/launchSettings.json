@@ -2,8 +2,8 @@
   "profiles": {
     "TsaThroughputApp": {
       "commandName": "Project",
-      "commandLineArgs": "TabulaSharp ../../data/tsa_throughput_march_24_2019_to_march_30_2019.pdf ../../data/raw/tsa/tsa_throughput_march_24_2019_to_march_30_2019.json",
-      "workingDirectory": "\\\\wsl.localhost\\Ubuntu-20.04\\home\\mlorengo\\repos\\tsathroughput\\src\\TsaThroughputApp",
+      "commandLineArgs": "../../data/tsa-throughput-data-2024-10-27-to-2024-11-02.pdf ../../data/raw/tsa/throughput/tsa-throughput-data-2024-10-27-to-2024-11-02.json",
+      "workingDirectory": "\\\\wsl.localhost\\Ubuntu\\home\\mlorengo\\repos\\tsathroughput\\src\\TsaThroughputApp",
       "environmentVariables": {
         "formRecognizerEndpointUri": "https://tsathroughput-frmrec-test.cognitiveservices.azure.com/",
         "formRecognizerApiKey": "0d9a2f2d34454fd0ab25363ea0013f40"
