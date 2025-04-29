@@ -21,7 +21,7 @@ def createAnimation(projectDir, airport, outputDir, logger):
 	logger.info(f'Creating Chart Animation For {airportString}.')
 
 	# Read in CSV file, Convert NaN values to 0's
-	df = pd.read_csv(f'{projectDir}/data/processed/tsa/throughput/TsaThroughput.{airportString}.csv', header='infer')
+	df = pd.read_csv(f'{projectDir}/tsathroughput/data/processed/tsa/throughput/TsaThroughput.{airportString}.csv', header='infer')
 
 	df.fillna(0, inplace=True)
 	df.Date = pd.to_datetime(df['Date'])
