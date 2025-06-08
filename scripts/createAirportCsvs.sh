@@ -1,4 +1,3 @@
-
 echo "Building cache file for all airports."
 python ../src/tsa_throughput/src/data/make_airport_dataset.py dir -d ../data/raw/tsa/throughput  -o ../data/processed/tsa/throughput
 echo "Cache file built."
